@@ -35,6 +35,42 @@ def _ultimo_md(skill_id: str) -> str:
     return ""
 
 
+def _gerar_resumo_etapa(skill_id: str, titulo: str):
+    historico = get_historico(skill_id)
+    if not historico:
+        return
+
+    api_key = st.session_state.get("api_key", "")
+    if not api_key:
+        return
+
+    provider_id = st.session_state.get("selected_provider", "anthropic")
+    model = st.session_state.get("selected_model", "claude-sonnet-4-6")
+
+    try:
+        provider = get_provider(provider_id)
+        system = "Você é um assistente de síntese de projetos de pesquisa científica."
+        msgs = historico + [{
+            "role": "user",
+            "content": (
+                f"Com base na conversa acima sobre a etapa '{titulo}', "
+                "gere um resumo estruturado de até 300 palavras contendo:\n"
+                "- Tema e objetivo do projeto\n"
+                "- Decisões e definições feitas nesta etapa\n"
+                "- Dados específicos relevantes (população, delineamento, método, etc.)\n\n"
+                "Este resumo será usado como contexto nas próximas etapas. "
+                "Seja conciso e objetivo."
+            ),
+        }]
+        resumo = ""
+        for texto in provider.stream_response(system, msgs, model, api_key):
+            resumo += texto
+        if resumo:
+            save_portable_context(skill_id, f"[Resumo — {titulo}]\n\n{resumo}")
+    except Exception:
+        pass
+
+
 def render_chat(skill_index: int):
     skill = PIPELINE[skill_index]
     skill_id = skill["id"]
@@ -150,10 +186,14 @@ def render_chat(skill_index: int):
     with col_av:
         if skill_index < len(PIPELINE) - 1:
             if st.button("Próxima etapa →", type="primary", use_container_width=True):
+                with st.spinner("Salvando contexto da etapa..."):
+                    _gerar_resumo_etapa(skill_id, skill["titulo"])
                 marcar_concluida(skill_id)
                 avancar_skill()
                 st.rerun()
         else:
             if st.button("Concluir pipeline ✓", type="primary", use_container_width=True):
+                with st.spinner("Salvando contexto da etapa..."):
+                    _gerar_resumo_etapa(skill_id, skill["titulo"])
                 marcar_concluida(skill_id)
                 st.success("Pipeline concluído! Todos os capítulos foram gerados.")

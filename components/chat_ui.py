@@ -92,9 +92,17 @@ def render_chat(skill_index: int):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Uploader de arquivo (expander acima do campo de chat)
+    # Botão "+" para alternar visibilidade do uploader
     upload_key = f"upload_{skill_id}_{st.session_state.get('upload_counter', 0)}"
-    with st.expander("Anexar arquivo ao contexto", expanded=False):
+    _vis_key = f"_upload_vis_{skill_id}"
+    _upload_vis = st.session_state.get(_vis_key, False)
+    col_plus, _ = st.columns([1, 16])
+    with col_plus:
+        if st.button("✕" if _upload_vis else "＋", key=f"_toggle_up_{skill_id}", help="Anexar arquivo ao contexto"):
+            st.session_state[_vis_key] = not _upload_vis
+
+    uploaded_file = None
+    if st.session_state.get(_vis_key, False):
         uploaded_file = st.file_uploader(
             "Formatos aceitos: .txt  .md  .docx",
             type=["txt", "md", "docx"],

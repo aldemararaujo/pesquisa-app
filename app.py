@@ -116,6 +116,16 @@ st.markdown("""
         line-height: 1 !important;
     }
 
+    /* Botão nativo de recolher sidebar — sempre visível */
+    [data-testid="stSidebarCollapseButton"] {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    [data-testid="stSidebarCollapseButton"] button {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
     /* Abre espaço no textarea para o botão não sobrepor o texto */
     [data-testid="stChatInputContainer"] textarea {
         padding-left: 3rem !important;

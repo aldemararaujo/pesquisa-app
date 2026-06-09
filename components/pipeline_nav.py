@@ -3,7 +3,7 @@ from config import PIPELINE, CONTEXT_LIMITS
 
 
 def render_pipeline_nav():
-    st.sidebar.markdown("**Pipeline de Pesquisa**")
+    st.sidebar.markdown("**Trilha da Pesquisa**")
 
     fases_vistas = []
     for i, skill in enumerate(PIPELINE):

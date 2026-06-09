@@ -55,7 +55,7 @@ st.markdown("""
         display: block;
     }
     .sh-brand {
-        font-size: 1.45rem;
+        font-size: 1.65rem;
         font-weight: 800;
         letter-spacing: 0.06em;
         color: #1F497D;
@@ -64,10 +64,10 @@ st.markdown("""
         display: block;
     }
     .sh-tagline {
-        font-size: 0.62rem;
+        font-size: 0.78rem;
         letter-spacing: 0.2em;
         text-transform: uppercase;
-        opacity: 0.55;
+        opacity: 0.8;
         font-family: 'Helvetica Neue', Arial, sans-serif;
         font-weight: 700;
         margin-top: 0.15rem;
@@ -75,9 +75,9 @@ st.markdown("""
     }
 
     .sh-version {
-        font-size: 0.58rem;
+        font-size: 0.7rem;
         letter-spacing: 0.1em;
-        opacity: 0.4;
+        opacity: 0.65;
         font-family: 'Helvetica Neue', Arial, sans-serif;
         font-weight: 400;
         margin-top: 0.2rem;

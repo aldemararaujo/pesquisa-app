@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from utils.session import init_session
 from components.pipeline_nav import render_pipeline_nav
 from components.chat_ui import render_chat
@@ -178,7 +179,7 @@ _tab_title = (
     if _total_tokens > 0
     else "FiatLux - Projeto de Pesquisa"
 )
-st.markdown(f"<script>document.title = '{_tab_title}';</script>", unsafe_allow_html=True)
+components.html(f"<script>window.parent.document.title = '{_tab_title}';</script>", height=0, scrolling=False)
 
 skill_atual = st.session_state.skill_atual
 render_chat(skill_atual)

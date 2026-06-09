@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from skills.loader import load_system_prompt
 from utils.session import (
     get_historico,
@@ -108,26 +109,28 @@ def render_chat(skill_index: int):
             label_visibility="collapsed",
         )
 
-    # Injeta JS que move o botão visualmente para dentro do campo de chat
-    st.markdown("""<script>
+    # Injeta JS via iframe (components.html) para posicionar o botão dentro do chat input
+    components.html("""
+<script>
 (function(){
     var P='＋', X='✕';
     function go(){
+        var doc = window.parent.document;
         var tb = Array.from(
-            document.querySelectorAll('section[data-testid="stMain"] button')
+            doc.querySelectorAll('section[data-testid="stMain"] button')
         ).find(function(b){ var t=b.innerText.trim(); return t===P||t===X; });
-        var cc = document.querySelector('[data-testid="stChatInputContainer"]');
+        var cc = doc.querySelector('[data-testid="stChatInputContainer"]');
         if (!tb || !cc) return;
         var ta = cc.querySelector('textarea');
         if (ta) ta.style.paddingLeft = '3rem';
         var wp = tb.closest('[data-testid="element-container"]');
         if (wp) wp.style.cssText = 'height:0;overflow:hidden;padding:0;margin:0;position:absolute;';
-        var ov = document.getElementById('__upbtn__');
+        var ov = doc.getElementById('__upbtn__');
         if (!ov) {
-            ov = document.createElement('button');
+            ov = doc.createElement('button');
             ov.id = '__upbtn__';
             ov.type = 'button';
-            document.body.appendChild(ov);
+            doc.body.appendChild(ov);
         }
         var r = cc.getBoundingClientRect(), s = 30;
         ov.style.cssText =
@@ -143,7 +146,8 @@ def render_chat(skill_index: int):
     setTimeout(go, 100);
     setTimeout(go, 600);
 })();
-</script>""", unsafe_allow_html=True)
+</script>
+""", height=0, scrolling=False)
 
     # Entrada do usuário
     user_input = st.chat_input("Digite sua mensagem...")

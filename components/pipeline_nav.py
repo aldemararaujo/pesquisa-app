@@ -37,6 +37,7 @@ def render_pipeline_nav():
     st.sidebar.markdown("---")
 
     # Indicador de uso de contexto da etapa atual
+
     skill_id_atual = PIPELINE[st.session_state.skill_atual]["id"]
     tokens = st.session_state.get("tokens_por_skill", {}).get(skill_id_atual, {"input": 0, "output": 0})
     total_tokens = tokens["input"] + tokens["output"]
@@ -64,5 +65,26 @@ def render_pipeline_nav():
     st.sidebar.progress(pct_ctx)
 
     st.sidebar.markdown("---")
-    progresso = len(st.session_state.skills_concluidas) / len(PIPELINE)
-    st.sidebar.progress(progresso, text=f"{len(st.session_state.skills_concluidas)}/{len(PIPELINE)} etapas concluídas")
+    concluidas_n = len(st.session_state.skills_concluidas)
+    total_n = len(PIPELINE)
+    progresso = concluidas_n / total_n
+
+    if concluidas_n == total_n:
+        ep_class = "ep-completo"
+    elif progresso >= 0.5:
+        ep_class = "ep-medio"
+    else:
+        ep_class = "ep-inicio"
+
+    st.sidebar.markdown(f"""
+<div class="etapas-counter {ep_class}">
+    <div class="ep-label">Progresso do pipeline</div>
+    <div class="ep-numbers">
+        <span class="ep-done">{concluidas_n}</span>
+        <span class="ep-sep"> / </span>
+        <span class="ep-total">{total_n}</span>
+    </div>
+    <div class="ep-unit">etapas concluídas &nbsp;&middot;&nbsp; {progresso*100:.0f}%</div>
+</div>
+""", unsafe_allow_html=True)
+    st.sidebar.progress(progresso)

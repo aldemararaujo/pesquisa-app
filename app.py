@@ -161,6 +161,51 @@ st.markdown("""
     .tc-medio { border-color: rgba(184,110,0,0.35) !important; background: rgba(184,110,0,0.06) !important; }
     .tc-alto  { border-color: rgba(185,28,28,0.35)  !important; background: rgba(185,28,28,0.06)  !important; }
 
+    /* ===== Progresso do pipeline ===== */
+    .etapas-counter {
+        background: rgba(31, 73, 125, 0.07);
+        border: 1px solid rgba(31, 73, 125, 0.18);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem 0.4rem;
+        text-align: center;
+        margin: 0.25rem 0;
+    }
+    .ep-label {
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.6;
+        font-weight: 600;
+        margin-bottom: 0.15rem;
+    }
+    .ep-numbers { line-height: 1.1; }
+    .ep-done {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: #1F497D;
+        font-family: Georgia, serif;
+    }
+    .ep-sep {
+        font-size: 1rem;
+        opacity: 0.45;
+        margin: 0 0.1rem;
+    }
+    .ep-total {
+        font-size: 0.85rem;
+        opacity: 0.55;
+        font-weight: 500;
+    }
+    .ep-unit {
+        font-size: 0.62rem;
+        opacity: 0.55;
+        margin-top: 0.1rem;
+        letter-spacing: 0.05em;
+    }
+    .ep-medio    .ep-done  { color: #b86e00; }
+    .ep-completo .ep-done  { color: #15803d; }
+    .ep-medio    { border-color: rgba(184,110,0,0.35) !important; background: rgba(184,110,0,0.06) !important; }
+    .ep-completo { border-color: rgba(21,128,61,0.35)  !important; background: rgba(21,128,61,0.06)  !important; }
+
     /* Botão nativo de recolher sidebar — sempre visível */
     [data-testid="stSidebarCollapseButton"] {
         opacity: 1 !important;

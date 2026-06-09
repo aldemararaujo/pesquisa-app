@@ -29,25 +29,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-def _on_provider_change():
-    new_provider = st.session_state["_provider_select"]
-    if new_provider != st.session_state.get("selected_provider"):
-        st.session_state["selected_provider"] = new_provider
-        st.session_state["selected_model"] = PROVIDERS[new_provider]["default_model"]
-        st.session_state["api_key"] = ""
-
-
-def _on_model_change():
-    st.session_state["selected_model"] = st.session_state["_model_select"]
-
-
-# Painel lateral
-with st.sidebar:
-    st.markdown("## 📋 FiatLux - Projeto de Pesquisa")
-
-    with st.popover("ℹ️ Como usar", use_container_width=True):
-        st.markdown("### Como usar o FiatLux")
-        st.markdown("""
+@st.dialog("Como usar o FiatLux", width="large")
+def _dialog_como_usar():
+    st.markdown("""
 **1. Configure a IA**
 Escolha o provedor de IA e insira sua chave de API no painel lateral.
 Sua chave não é armazenada — fica apenas nesta sessão.
@@ -66,7 +50,27 @@ Ao final de cada etapa, exporte o resultado em Markdown, Word ou PDF.
 **5. Monitore o uso de contexto**
 A barra na sidebar mostra quantos tokens foram consumidos na etapa atual.
 A aba do navegador exibe o total acumulado de tokens da sessão.
-        """)
+    """)
+
+
+def _on_provider_change():
+    new_provider = st.session_state["_provider_select"]
+    if new_provider != st.session_state.get("selected_provider"):
+        st.session_state["selected_provider"] = new_provider
+        st.session_state["selected_model"] = PROVIDERS[new_provider]["default_model"]
+        st.session_state["api_key"] = ""
+
+
+def _on_model_change():
+    st.session_state["selected_model"] = st.session_state["_model_select"]
+
+
+# Painel lateral
+with st.sidebar:
+    st.markdown("## 📋 FiatLux - Projeto de Pesquisa")
+
+    if st.button("ℹ️ Como usar", use_container_width=True):
+        _dialog_como_usar()
 
     st.markdown("---")
 

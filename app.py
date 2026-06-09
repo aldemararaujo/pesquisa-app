@@ -5,7 +5,7 @@ from components.chat_ui import render_chat
 from config import PIPELINE
 
 st.set_page_config(
-    page_title="Projeto de Pesquisa — Redação com IA",
+    page_title="FiatLux - Projeto de Pesquisa",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -31,7 +31,7 @@ with st.sidebar:
 
 # Cabeçalho principal (só na tela inicial)
 if not st.session_state.skills_concluidas and st.session_state.skill_atual == 0:
-    st.title("Projeto de Pesquisa — Redação com IA")
+    st.title("FiatLux - Projeto de Pesquisa")
     st.markdown(
         """
         Esta ferramenta guia você pelo processo completo de redação de um projeto de pesquisa

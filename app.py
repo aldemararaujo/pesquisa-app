@@ -28,43 +28,43 @@ st.markdown("""
         padding-top: 0 !important;
     }
 
-    /* Permite sticky + reduz gap entre elementos da sidebar */
+    /* Permite sticky + gap moderado entre elementos da sidebar */
     section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
         overflow: visible !important;
-        gap: 0.15rem !important;
+        gap: 0.3rem !important;
     }
 
-    /* Remove padding padrão dos wrappers de elemento */
+    /* Padding leve nos wrappers de elemento */
     section[data-testid="stSidebar"] [data-testid="element-container"] {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
+        padding-top: 0.05rem !important;
+        padding-bottom: 0.05rem !important;
         margin-bottom: 0 !important;
     }
 
-    /* Compacta botões da sidebar */
+    /* Botões da sidebar com altura equilibrada */
     section[data-testid="stSidebar"] .stButton > button {
-        padding-top: 0.2rem !important;
-        padding-bottom: 0.2rem !important;
-        min-height: 1.9rem !important;
-        line-height: 1.2 !important;
+        padding-top: 0.3rem !important;
+        padding-bottom: 0.3rem !important;
+        min-height: 2.1rem !important;
+        line-height: 1.3 !important;
     }
 
-    /* Remove margem dos parágrafos gerados por st.markdown na sidebar */
+    /* Margem mínima nos parágrafos gerados por st.markdown na sidebar */
     section[data-testid="stSidebar"] .stMarkdown p {
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
+        margin-top: 0.1rem !important;
+        margin-bottom: 0.1rem !important;
         line-height: 1.4 !important;
     }
 
-    /* Compacta separadores --- */
+    /* Separadores --- com respiro moderado */
     section[data-testid="stSidebar"] hr {
-        margin-top: 0.25rem !important;
-        margin-bottom: 0.25rem !important;
+        margin-top: 0.4rem !important;
+        margin-bottom: 0.4rem !important;
     }
 
-    /* Remove espaçamento dos progress bars na sidebar */
+    /* Espaçamento leve nos progress bars */
     section[data-testid="stSidebar"] .stProgress {
-        margin-top: 0.1rem !important;
+        margin-top: 0.2rem !important;
         padding-top: 0 !important;
         padding-bottom: 0 !important;
     }
@@ -159,7 +159,7 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5rem 0.75rem 0.4rem;
         text-align: center;
-        margin: 0.1rem 0;
+        margin: 0.2rem 0;
     }
     .tc-label {
         font-size: 0.62rem;
@@ -204,7 +204,7 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5rem 0.75rem 0.4rem;
         text-align: center;
-        margin: 0.1rem 0;
+        margin: 0.2rem 0;
     }
     .ep-label {
         font-size: 0.62rem;

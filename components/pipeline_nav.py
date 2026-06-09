@@ -27,7 +27,8 @@ def render_pipeline_nav():
         label = f"{icone} {skill['titulo']}"
 
         if i == atual:
-            st.sidebar.markdown(f"**{label}**")
+            if st.sidebar.button(label, key=f"nav_{i}", use_container_width=True, type="primary"):
+                pass
         else:
             if st.sidebar.button(label, key=f"nav_{i}", use_container_width=True):
                 st.session_state.skill_atual = i

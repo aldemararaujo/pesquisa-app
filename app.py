@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from utils.session import init_session
 from components.pipeline_nav import render_pipeline_nav
 from components.chat_ui import render_chat
@@ -30,6 +29,39 @@ st.markdown("""
     }
     div[data-testid="stVerticalBlock"] > div {
         gap: 0.25rem !important;
+    }
+
+    /* Esconde o span âncora do botão de upload */
+    [data-testid="element-container"]:has(#_ul_anchor_) {
+        height: 0 !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Posiciona o botão toggle dentro do campo de chat (sidebar expandida ≈ 21rem) */
+    [data-testid="element-container"]:has(#_ul_anchor_) + [data-testid="element-container"] {
+        position: fixed !important;
+        bottom: 10px !important;
+        left: calc(21rem + 12px) !important;
+        z-index: 999 !important;
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+    }
+    [data-testid="element-container"]:has(#_ul_anchor_) + [data-testid="element-container"] button {
+        border-radius: 50% !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        font-size: 1rem !important;
+        line-height: 1 !important;
+    }
+
+    /* Abre espaço no textarea para o botão não sobrepor o texto */
+    [data-testid="stChatInputContainer"] textarea {
+        padding-left: 3rem !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -179,7 +211,7 @@ _tab_title = (
     if _total_tokens > 0
     else "FiatLux - Projeto de Pesquisa"
 )
-components.html(f"<script>window.parent.document.title = '{_tab_title}';</script>", height=0, scrolling=False)
+st.markdown(f"<script>document.title='{_tab_title}'</script>", unsafe_allow_html=True)
 
 skill_atual = st.session_state.skill_atual
 render_chat(skill_atual)

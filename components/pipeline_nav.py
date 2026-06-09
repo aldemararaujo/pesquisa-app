@@ -28,12 +28,10 @@ def render_pipeline_nav():
 
         if i == atual:
             st.sidebar.markdown(f"**{label}**")
-        elif skill["id"] in concluidas:
+        else:
             if st.sidebar.button(label, key=f"nav_{i}", use_container_width=True):
                 st.session_state.skill_atual = i
                 st.rerun()
-        else:
-            st.sidebar.markdown(f"<span style='color:#999'>{label}</span>", unsafe_allow_html=True)
 
     st.sidebar.markdown("---")
 

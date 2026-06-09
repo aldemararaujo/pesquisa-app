@@ -13,6 +13,11 @@ st.set_page_config(
 
 init_session()
 
+# Mantém api_key sincronizada com o widget do dialog (persiste mesmo com dialog fechado)
+_prov_id = st.session_state.get("selected_provider", DEFAULT_PROVIDER)
+if f"_api_key_{_prov_id}" in st.session_state:
+    st.session_state.api_key = st.session_state[f"_api_key_{_prov_id}"]
+
 st.markdown("""
 <style>
     .block-container {
@@ -33,7 +38,7 @@ st.markdown("""
 def _dialog_como_usar():
     st.markdown("""
 **1. Configure a IA**
-Escolha o provedor de IA e insira sua chave de API no painel lateral.
+Abra "Configuração" na barra lateral, escolha o provedor e insira sua chave de API.
 Sua chave não é armazenada — fica apenas nesta sessão.
 
 **2. Siga o pipeline em ordem**
@@ -65,23 +70,15 @@ def _on_model_change():
     st.session_state["selected_model"] = st.session_state["_model_select"]
 
 
-# Painel lateral
-with st.sidebar:
-    st.markdown("## 📋 FiatLux - Projeto de Pesquisa")
-
-    if st.button("ℹ️ Como usar", use_container_width=True):
-        _dialog_como_usar()
-
-    st.markdown("---")
-
-    # Status e chave de API
+@st.dialog("Configuração", width="large")
+def _dialog_configuracao():
     provider_id = st.session_state.get("selected_provider", DEFAULT_PROVIDER)
     prov = PROVIDERS[provider_id]
 
     if st.session_state.get("api_key"):
         st.success("API configurada", icon="✅")
     else:
-        st.warning("Insira a chave de API", icon="⚠️")
+        st.warning("Insira a chave de API abaixo", icon="⚠️")
 
     st.text_input(
         prov["key_label"],
@@ -93,32 +90,42 @@ with st.sidebar:
     )
     st.session_state.api_key = st.session_state.get(f"_api_key_{provider_id}", "")
 
-    with st.expander("Provedor e modelo", expanded=False):
-        provider_ids = list(PROVIDERS.keys())
-        current_provider = st.session_state.get("selected_provider", DEFAULT_PROVIDER)
-        current_provider_idx = provider_ids.index(current_provider) if current_provider in provider_ids else 0
+    st.divider()
 
-        st.selectbox(
-            "Provedor",
-            options=provider_ids,
-            format_func=lambda x: PROVIDERS[x]["label"],
-            index=current_provider_idx,
-            key="_provider_select",
-            on_change=_on_provider_change,
-        )
+    provider_ids = list(PROVIDERS.keys())
+    current_provider_idx = provider_ids.index(provider_id) if provider_id in provider_ids else 0
+    st.selectbox(
+        "Provedor de IA",
+        options=provider_ids,
+        format_func=lambda x: PROVIDERS[x]["label"],
+        index=current_provider_idx,
+        key="_provider_select",
+        on_change=_on_provider_change,
+    )
 
-        model_options = prov["models"]
-        current_model = st.session_state.get("selected_model", prov["default_model"])
-        if current_model not in model_options:
-            current_model = prov["default_model"]
+    model_options = prov["models"]
+    current_model = st.session_state.get("selected_model", prov["default_model"])
+    if current_model not in model_options:
+        current_model = prov["default_model"]
+    st.selectbox(
+        "Modelo",
+        options=model_options,
+        index=model_options.index(current_model),
+        key="_model_select",
+        on_change=_on_model_change,
+    )
 
-        st.selectbox(
-            "Modelo",
-            options=model_options,
-            index=model_options.index(current_model),
-            key="_model_select",
-            on_change=_on_model_change,
-        )
+
+# Painel lateral
+with st.sidebar:
+    st.markdown("## 📋 FiatLux - Projeto de Pesquisa")
+
+    if st.button("ℹ️ Como usar", use_container_width=True):
+        _dialog_como_usar()
+
+    config_label = "✅ Configuração" if st.session_state.get("api_key") else "⚠️ Configuração"
+    if st.button(config_label, use_container_width=True):
+        _dialog_configuracao()
 
     st.markdown("---")
     render_pipeline_nav()

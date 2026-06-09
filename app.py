@@ -69,7 +69,7 @@ st.markdown("""
         text-transform: uppercase;
         opacity: 0.55;
         font-family: 'Helvetica Neue', Arial, sans-serif;
-        font-weight: 400;
+        font-weight: 700;
         margin-top: 0.15rem;
         display: block;
     }

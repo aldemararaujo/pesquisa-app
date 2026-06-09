@@ -1,8 +1,8 @@
 import streamlit as st
-from utils.session import init_session, get_historico
+from utils.session import init_session
 from components.pipeline_nav import render_pipeline_nav
 from components.chat_ui import render_chat
-from config import PIPELINE, PROVIDERS, DEFAULT_PROVIDER
+from config import PROVIDERS, DEFAULT_PROVIDER
 
 st.set_page_config(
     page_title="FiatLux - Projeto de Pesquisa",
@@ -44,6 +44,30 @@ def _on_model_change():
 # Painel lateral
 with st.sidebar:
     st.markdown("## 📋 FiatLux - Projeto de Pesquisa")
+
+    with st.popover("ℹ️ Como usar", use_container_width=True):
+        st.markdown("### Como usar o FiatLux")
+        st.markdown("""
+**1. Configure a IA**
+Escolha o provedor de IA e insira sua chave de API no painel lateral.
+Sua chave não é armazenada — fica apenas nesta sessão.
+
+**2. Siga o pipeline em ordem**
+O pipeline tem 14 etapas, do mapeamento do tema até a compilação final.
+Complete cada etapa antes de avançar para a próxima.
+
+**3. Converse com a IA**
+Digite sua mensagem no campo de chat.
+Você também pode anexar arquivos `.txt`, `.md` ou `.docx` como contexto.
+
+**4. Baixe os arquivos gerados**
+Ao final de cada etapa, exporte o resultado em Markdown, Word ou PDF.
+
+**5. Monitore o uso de contexto**
+A barra na sidebar mostra quantos tokens foram consumidos na etapa atual.
+A aba do navegador exibe o total acumulado de tokens da sessão.
+        """)
+
     st.markdown("---")
 
     # Status e chave de API
@@ -95,37 +119,6 @@ with st.sidebar:
     st.markdown("---")
     render_pipeline_nav()
 
-
-# Cabeçalho principal — visível só antes da primeira mensagem na etapa 1
-primeiro_skill_id = PIPELINE[0]["id"]
-mostrar_cabecalho = (
-    st.session_state.skill_atual == 0
-    and not st.session_state.skills_concluidas
-    and len(get_historico(primeiro_skill_id)) == 0
-)
-
-if mostrar_cabecalho:
-    col_icon, col_text = st.columns([1, 6])
-    with col_icon:
-        st.markdown("## 📋")
-    with col_text:
-        st.markdown("# FiatLux")
-        st.caption("Assistente de redação para projetos de pesquisa científica em português brasileiro")
-
-    st.markdown("---")
-
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown("**1. Configure a IA**")
-        st.markdown("Escolha o provedor e insira a chave de API na barra lateral.")
-    with c2:
-        st.markdown("**2. Siga o pipeline**")
-        st.markdown("Complete cada etapa em ordem — do mapeamento do tema à compilação final.")
-    with c3:
-        st.markdown("**3. Baixe os arquivos**")
-        st.markdown("Ao final de cada etapa, exporte em Markdown, Word ou PDF.")
-
-    st.markdown("---")
 
 _total_tokens = sum(
     v["input"] + v["output"]

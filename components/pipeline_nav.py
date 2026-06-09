@@ -43,7 +43,24 @@ def render_pipeline_nav():
     provider_id = st.session_state.get("selected_provider", "anthropic")
     limite = CONTEXT_LIMITS.get(provider_id, 128_000)
     pct_ctx = min(total_tokens / limite, 1.0)
-    st.sidebar.caption(f"Contexto da etapa: {total_tokens:,} de {limite:,} tokens")
+    if pct_ctx >= 0.8:
+        cor_class = "tc-alto"
+    elif pct_ctx >= 0.5:
+        cor_class = "tc-medio"
+    else:
+        cor_class = "tc-baixo"
+
+    st.sidebar.markdown(f"""
+<div class="token-counter {cor_class}">
+    <div class="tc-label">Contexto da etapa</div>
+    <div class="tc-numbers">
+        <span class="tc-used">{total_tokens:,}</span>
+        <span class="tc-sep"> / </span>
+        <span class="tc-total">{limite:,}</span>
+    </div>
+    <div class="tc-unit">tokens &nbsp;&middot;&nbsp; {pct_ctx*100:.1f}%</div>
+</div>
+""", unsafe_allow_html=True)
     st.sidebar.progress(pct_ctx)
 
     st.sidebar.markdown("---")

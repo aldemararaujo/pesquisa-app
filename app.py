@@ -116,6 +116,51 @@ st.markdown("""
         line-height: 1 !important;
     }
 
+    /* ===== Contador de tokens ===== */
+    .token-counter {
+        background: rgba(31, 73, 125, 0.07);
+        border: 1px solid rgba(31, 73, 125, 0.18);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem 0.4rem;
+        text-align: center;
+        margin: 0.25rem 0;
+    }
+    .tc-label {
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.6;
+        font-weight: 600;
+        margin-bottom: 0.15rem;
+    }
+    .tc-numbers { line-height: 1.1; }
+    .tc-used {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: #1F497D;
+        font-family: Georgia, serif;
+    }
+    .tc-sep {
+        font-size: 1rem;
+        opacity: 0.45;
+        margin: 0 0.1rem;
+    }
+    .tc-total {
+        font-size: 0.85rem;
+        opacity: 0.55;
+        font-weight: 500;
+    }
+    .tc-unit {
+        font-size: 0.62rem;
+        opacity: 0.55;
+        margin-top: 0.1rem;
+        letter-spacing: 0.05em;
+    }
+    .tc-medio .tc-used { color: #b86e00; }
+    .tc-alto  .tc-used { color: #b91c1c; }
+    .tc-medio { border-color: rgba(184,110,0,0.35) !important; background: rgba(184,110,0,0.06) !important; }
+    .tc-alto  { border-color: rgba(185,28,28,0.35)  !important; background: rgba(185,28,28,0.06)  !important; }
+
     /* Botão nativo de recolher sidebar — sempre visível */
     [data-testid="stSidebarCollapseButton"] {
         opacity: 1 !important;

@@ -45,7 +45,7 @@ st.markdown("""
     /* Tipografia — três linhas */
     .sidebar-header {
         text-align: center;
-        padding: 0.75rem 2rem 0.75rem 0.5rem;
+        padding: 0.75rem 0.5rem 0.75rem 0.5rem;
         border-bottom: 1px solid rgba(31, 73, 125, 0.18);
         position: relative;
     }
@@ -84,27 +84,6 @@ st.markdown("""
         display: block;
     }
 
-    /* Botão recolher sidebar */
-    .sh-collapse-btn {
-        position: absolute;
-        right: 6px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: transparent;
-        border: 1px solid rgba(31, 73, 125, 0.3);
-        border-radius: 6px;
-        color: #1F497D;
-        cursor: pointer;
-        font-size: 1.1rem;
-        width: 26px;
-        height: 26px;
-        padding: 0;
-        line-height: 1;
-        transition: background 0.15s;
-    }
-    .sh-collapse-btn:hover {
-        background: rgba(31, 73, 125, 0.1);
-    }
     div[data-testid="stVerticalBlock"] > div {
         gap: 0.25rem !important;
     }
@@ -273,10 +252,6 @@ with st.sidebar:
     <div class="sh-brand">FiatLux</div>
     <div class="sh-tagline">Projeto de Pesquisa</div>
     <div class="sh-version">v1.1.0 &middot; jun 2026</div>
-    <button class="sh-collapse-btn" title="Recolher"
-        onclick="(function(){var b=document.querySelector('[data-testid=\\"stSidebarCollapseButton\\"] button');if(b)b.click();})()">
-        &#8249;
-    </button>
 </div>
 """, unsafe_allow_html=True)
 

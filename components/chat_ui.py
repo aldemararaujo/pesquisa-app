@@ -92,14 +92,12 @@ def render_chat(skill_index: int):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Botão "+" para alternar visibilidade do uploader
+    # Botão toggle upload — escondido no DOM, reposicionado por JS dentro do campo de chat
     upload_key = f"upload_{skill_id}_{st.session_state.get('upload_counter', 0)}"
     _vis_key = f"_upload_vis_{skill_id}"
     _upload_vis = st.session_state.get(_vis_key, False)
-    col_plus, _ = st.columns([1, 16])
-    with col_plus:
-        if st.button("✕" if _upload_vis else "＋", key=f"_toggle_up_{skill_id}", help="Anexar arquivo ao contexto"):
-            st.session_state[_vis_key] = not _upload_vis
+    if st.button("✕" if _upload_vis else "＋", key=f"_toggle_up_{skill_id}", help="Anexar arquivo ao contexto"):
+        st.session_state[_vis_key] = not _upload_vis
 
     uploaded_file = None
     if st.session_state.get(_vis_key, False):
@@ -109,6 +107,43 @@ def render_chat(skill_index: int):
             key=upload_key,
             label_visibility="collapsed",
         )
+
+    # Injeta JS que move o botão visualmente para dentro do campo de chat
+    st.markdown("""<script>
+(function(){
+    var P='＋', X='✕';
+    function go(){
+        var tb = Array.from(
+            document.querySelectorAll('section[data-testid="stMain"] button')
+        ).find(function(b){ var t=b.innerText.trim(); return t===P||t===X; });
+        var cc = document.querySelector('[data-testid="stChatInputContainer"]');
+        if (!tb || !cc) return;
+        var ta = cc.querySelector('textarea');
+        if (ta) ta.style.paddingLeft = '3rem';
+        var wp = tb.closest('[data-testid="element-container"]');
+        if (wp) wp.style.cssText = 'height:0;overflow:hidden;padding:0;margin:0;position:absolute;';
+        var ov = document.getElementById('__upbtn__');
+        if (!ov) {
+            ov = document.createElement('button');
+            ov.id = '__upbtn__';
+            ov.type = 'button';
+            document.body.appendChild(ov);
+        }
+        var r = cc.getBoundingClientRect(), s = 30;
+        ov.style.cssText =
+            'position:fixed;left:'+(r.left+8)+'px;top:'+(r.top+(r.height-s)/2)+'px;' +
+            'width:'+s+'px;height:'+s+'px;z-index:1001;background:transparent;' +
+            'border:1.5px solid rgba(49,51,63,0.2);border-radius:50%;cursor:pointer;' +
+            'font-size:1.1rem;padding:0;display:flex;align-items:center;' +
+            'justify-content:center;color:rgb(49,51,63);line-height:1;';
+        ov.innerText = tb.innerText.trim();
+        ov.title = 'Anexar arquivo ao contexto';
+        ov.onclick = function(){ tb.click(); };
+    }
+    setTimeout(go, 100);
+    setTimeout(go, 600);
+})();
+</script>""", unsafe_allow_html=True)
 
     # Entrada do usuário
     user_input = st.chat_input("Digite sua mensagem...")

@@ -3,13 +3,14 @@ from config import PIPELINE, CONTEXT_LIMITS
 
 
 def render_pipeline_nav():
-    st.sidebar.title("Pipeline de Pesquisa")
-    st.sidebar.markdown("---")
+    st.sidebar.markdown("**Pipeline de Pesquisa**")
 
     fases_vistas = []
     for i, skill in enumerate(PIPELINE):
         fase = skill["fase"]
         if fase not in fases_vistas:
+            if fases_vistas:
+                st.sidebar.markdown("---")
             fases_vistas.append(fase)
             st.sidebar.markdown(f"**{fase}**")
 

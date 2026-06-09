@@ -28,9 +28,45 @@ st.markdown("""
         padding-top: 0 !important;
     }
 
-    /* Permite sticky dentro da sidebar */
+    /* Permite sticky + reduz gap entre elementos da sidebar */
     section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
         overflow: visible !important;
+        gap: 0.15rem !important;
+    }
+
+    /* Remove padding padrão dos wrappers de elemento */
+    section[data-testid="stSidebar"] [data-testid="element-container"] {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Compacta botões da sidebar */
+    section[data-testid="stSidebar"] .stButton > button {
+        padding-top: 0.2rem !important;
+        padding-bottom: 0.2rem !important;
+        min-height: 1.9rem !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Remove margem dos parágrafos gerados por st.markdown na sidebar */
+    section[data-testid="stSidebar"] .stMarkdown p {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        line-height: 1.4 !important;
+    }
+
+    /* Compacta separadores --- */
+    section[data-testid="stSidebar"] hr {
+        margin-top: 0.25rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    /* Remove espaçamento dos progress bars na sidebar */
+    section[data-testid="stSidebar"] .stProgress {
+        margin-top: 0.1rem !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
 
     /* Cabeçalho fixo no topo da sidebar */
@@ -123,7 +159,7 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5rem 0.75rem 0.4rem;
         text-align: center;
-        margin: 0.25rem 0;
+        margin: 0.1rem 0;
     }
     .tc-label {
         font-size: 0.62rem;
@@ -168,7 +204,7 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5rem 0.75rem 0.4rem;
         text-align: center;
-        margin: 0.25rem 0;
+        margin: 0.1rem 0;
     }
     .ep-label {
         font-size: 0.62rem;

@@ -2,12 +2,15 @@ import streamlit as st
 
 
 def init_session():
+    from config import PROVIDERS, DEFAULT_PROVIDER
     defaults = {
         "skill_atual": 0,
         "skills_concluidas": set(),
         "historico": {},
         "contextos_portateis": {},
         "api_key": "",
+        "selected_provider": DEFAULT_PROVIDER,
+        "selected_model": PROVIDERS[DEFAULT_PROVIDER]["default_model"],
     }
     for key, value in defaults.items():
         if key not in st.session_state:

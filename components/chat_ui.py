@@ -1,5 +1,4 @@
 import streamlit as st
-import anthropic
 from skills.loader import load_system_prompt
 from utils.session import (
     get_historico,
@@ -9,8 +8,9 @@ from utils.session import (
     marcar_concluida,
     avancar_skill,
 )
+from utils.llm_provider import get_provider, AuthenticationError as LLMAuthError
 from components.file_download import render_download_buttons
-from config import PIPELINE, PIPELINE_IDS, CLAUDE_MODEL
+from config import PIPELINE, PIPELINE_IDS
 
 _MARCADOR_CONTEXTO = "=== BLOCO DE CONTEXTO PORTÁTIL ==="
 _MARCADOR_FIM = "=== FIM DO BLOCO ==="
@@ -57,17 +57,14 @@ def render_chat(skill_index: int):
 
         api_key = st.session_state.get("api_key", "")
         if not api_key:
-            try:
-                api_key = st.secrets.get("ANTHROPIC_API_KEY", "")
-            except Exception:
-                api_key = ""
-
-        if not api_key:
-            st.error("Insira sua chave de API Anthropic no painel lateral.")
+            st.error("Insira sua chave de API no painel lateral.")
             return
 
+        provider_id = st.session_state.get("selected_provider", "anthropic")
+        model = st.session_state.get("selected_model", "claude-sonnet-4-6")
+
         try:
-            client = anthropic.Anthropic(api_key=api_key)
+            provider = get_provider(provider_id)
 
             # Monta system prompt com contexto das etapas anteriores
             skill_prompt = load_system_prompt(skill_id)
@@ -79,15 +76,9 @@ def render_chat(skill_index: int):
                 resposta_completa = ""
                 placeholder = st.empty()
 
-                with client.messages.stream(
-                    model=CLAUDE_MODEL,
-                    max_tokens=8096,
-                    system=system,
-                    messages=get_historico(skill_id),
-                ) as stream:
-                    for texto in stream.text_stream:
-                        resposta_completa += texto
-                        placeholder.markdown(resposta_completa + "▌")
+                for texto in provider.stream_response(system, get_historico(skill_id), model, api_key):
+                    resposta_completa += texto
+                    placeholder.markdown(resposta_completa + "▌")
 
                 placeholder.markdown(resposta_completa)
 
@@ -98,7 +89,7 @@ def render_chat(skill_index: int):
             if ctx:
                 save_portable_context(skill_id, ctx)
 
-        except anthropic.AuthenticationError:
+        except LLMAuthError:
             st.error("Chave de API inválida. Verifique e tente novamente.")
         except Exception as e:
             st.error(f"Erro ao chamar a API: {e}")

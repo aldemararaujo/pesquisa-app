@@ -137,22 +137,7 @@ def _dialog_configuracao():
         provider_id = st.session_state.get("selected_provider", DEFAULT_PROVIDER)
         prov = PROVIDERS[provider_id]
 
-    # 2. Modelo
-    model_options = prov["models"]
-    current_model = st.session_state.get("selected_model", prov["default_model"])
-    if current_model not in model_options:
-        current_model = prov["default_model"]
-    st.selectbox(
-        "Modelo",
-        options=model_options,
-        index=model_options.index(current_model),
-        key="_model_select",
-        on_change=_on_model_change,
-    )
-
-    st.divider()
-
-    # 3. Chave de API
+    # 2. Chave de API
     if api_key:
         st.success("API configurada", icon="✅")
     else:

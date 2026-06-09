@@ -206,3 +206,20 @@ com operadores booleanos.
 3. Converter `[nome-base].docx` → `[nome-base].pdf` com docx2pdf; se falhar, usar reportlab
 4. Remover o script Python temporário
 5. Confirmar ao pesquisador os três caminhos completos dos arquivos gerados
+
+
+---
+
+## SINALIZAÇÃO DE CONCLUSÃO
+
+Quando todos os entregáveis desta etapa estiverem gerados e a etapa estiver
+completa — e somente então —, adicione a seguinte linha como **última linha** da resposta:
+
+=== ETAPA CONCLUÍDA ===
+
+**Regras:**
+- Emita o marcador **apenas uma vez**, na última resposta da etapa.
+- **Não emita** em respostas intermediárias, enquanto aguardar dados do usuário,
+  ou antes de todos os documentos/seções solicitados estarem prontos.
+- Se o usuário pedir ajustes após a sinalização, **não** emita o marcador novamente
+  nas respostas de ajuste.

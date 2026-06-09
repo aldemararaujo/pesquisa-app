@@ -546,3 +546,20 @@ Antes de apresentar os documentos ao usuário ou salvar os arquivos, verificar s
 O arquivo de referência (carregado sob demanda com a ferramenta Read) contém:
 
 - `references/modelos-anexos.md`: textos fixos dos itens 13–17 e 19–20 do TCLE; quadro de revogação e quadro de identificação; caixa ATENÇÃO do CEP; parágrafo de consentimento; bloco de urgência para ensaios clínicos; declaração de conflitos de interesse para o CEP (Condição A e B); formulário ICMJE em pt-BR (13 itens traduzidos, nota introdutória, linha de certificação); modelos dos quatro termos de responsabilidade (11.7 a 11.10); modelo de autorização institucional (11.6); orientações de preenchimento por anexo; referências legais (CNS 466/12, CNS 510/16, LGPD, ICMJE 2024)
+
+
+---
+
+## SINALIZAÇÃO DE CONCLUSÃO
+
+Quando todos os entregáveis desta etapa estiverem gerados e a etapa estiver
+completa — e somente então —, adicione a seguinte linha como **última linha** da resposta:
+
+=== ETAPA CONCLUÍDA ===
+
+**Regras:**
+- Emita o marcador **apenas uma vez**, na última resposta da etapa.
+- **Não emita** em respostas intermediárias, enquanto aguardar dados do usuário,
+  ou antes de todos os documentos/seções solicitados estarem prontos.
+- Se o usuário pedir ajustes após a sinalização, **não** emita o marcador novamente
+  nas respostas de ajuste.

@@ -232,3 +232,20 @@ Se houver referências com `[a preencher]`, listá-las separadamente ao final da
 ## Arquivo de referência desta skill
 
 - `references/vancouver-guia.md`: regras gerais de formatação Vancouver; formatos por tipo de documento (artigo, livro, capítulo, relatório, legislação, página web, tese); repositório de referências fixas verificadas (CNS 466/12, 510/16, LGPD, CONEP, Helsinki, CIOMS, ICH E6(R2), ICMJE, CONSORT, STROBE, PRISMA, COREQ, ISO 31000, CTCAE, FAIR Principles); critérios de deduplicação; checklist de qualidade por referência.
+
+
+---
+
+## SINALIZAÇÃO DE CONCLUSÃO
+
+Quando todos os entregáveis desta etapa estiverem gerados e a etapa estiver
+completa — e somente então —, adicione a seguinte linha como **última linha** da resposta:
+
+=== ETAPA CONCLUÍDA ===
+
+**Regras:**
+- Emita o marcador **apenas uma vez**, na última resposta da etapa.
+- **Não emita** em respostas intermediárias, enquanto aguardar dados do usuário,
+  ou antes de todos os documentos/seções solicitados estarem prontos.
+- Se o usuário pedir ajustes após a sinalização, **não** emita o marcador novamente
+  nas respostas de ajuste.

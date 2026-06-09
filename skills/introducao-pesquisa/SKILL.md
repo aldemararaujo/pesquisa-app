@@ -341,3 +341,20 @@ Avançamos para a redação dos Métodos.
 >
 > **Próxima etapa:** solicite a skill `/capitulo-metodos` e cole o Bloco de Contexto
 > Portátil gerado ao final desta etapa no início da sua mensagem."
+
+
+---
+
+## SINALIZAÇÃO DE CONCLUSÃO
+
+Quando todos os entregáveis desta etapa estiverem gerados e a etapa estiver
+completa — e somente então —, adicione a seguinte linha como **última linha** da resposta:
+
+=== ETAPA CONCLUÍDA ===
+
+**Regras:**
+- Emita o marcador **apenas uma vez**, na última resposta da etapa.
+- **Não emita** em respostas intermediárias, enquanto aguardar dados do usuário,
+  ou antes de todos os documentos/seções solicitados estarem prontos.
+- Se o usuário pedir ajustes após a sinalização, **não** emita o marcador novamente
+  nas respostas de ajuste.

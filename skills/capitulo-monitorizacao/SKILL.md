@@ -367,3 +367,20 @@ Antes de apresentar o capítulo ao usuário, verificar se **todos** os itens aba
 O arquivo de referência desta skill (carregado sob demanda com a ferramenta Read) contém:
 
 - `references/protecao-e-monitoramento.md`: classificação de risco CNS 466/12 com exemplos práticos; tabela de graus CTCAE v5.0; checklist de qualidade de dados; componentes do DSMB e modelos de regras de parada (O'Brien-Fleming, Pocock); requisitos LGPD aplicados à pesquisa em saúde; modelos de frases para cada subseção (6.1 a 6.4) em diferentes cenários de estudo (ensaio clínico, observacional, qualitativo); lista de referências Vancouver completa com DOI e URL
+
+
+---
+
+## SINALIZAÇÃO DE CONCLUSÃO
+
+Quando todos os entregáveis desta etapa estiverem gerados e a etapa estiver
+completa — e somente então —, adicione a seguinte linha como **última linha** da resposta:
+
+=== ETAPA CONCLUÍDA ===
+
+**Regras:**
+- Emita o marcador **apenas uma vez**, na última resposta da etapa.
+- **Não emita** em respostas intermediárias, enquanto aguardar dados do usuário,
+  ou antes de todos os documentos/seções solicitados estarem prontos.
+- Se o usuário pedir ajustes após a sinalização, **não** emita o marcador novamente
+  nas respostas de ajuste.

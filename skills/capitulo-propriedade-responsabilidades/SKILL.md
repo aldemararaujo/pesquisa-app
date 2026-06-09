@@ -530,3 +530,20 @@ Antes de apresentar os capítulos ao usuário, verificar se **todos** os itens a
 - [ ] PDFs gerados com cabeçalho do capítulo correspondente e numeração de páginas; caminhos completos confirmados ao usuário
 
 **Próxima etapa:** solicite a skill `/capitulo-anexos` para redigir o Capítulo 11 — Anexos.
+
+
+---
+
+## SINALIZAÇÃO DE CONCLUSÃO
+
+Quando todos os entregáveis desta etapa estiverem gerados e a etapa estiver
+completa — e somente então —, adicione a seguinte linha como **última linha** da resposta:
+
+=== ETAPA CONCLUÍDA ===
+
+**Regras:**
+- Emita o marcador **apenas uma vez**, na última resposta da etapa.
+- **Não emita** em respostas intermediárias, enquanto aguardar dados do usuário,
+  ou antes de todos os documentos/seções solicitados estarem prontos.
+- Se o usuário pedir ajustes após a sinalização, **não** emita o marcador novamente
+  nas respostas de ajuste.

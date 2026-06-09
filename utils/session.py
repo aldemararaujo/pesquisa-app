@@ -9,6 +9,7 @@ def init_session():
         "historico": {},
         "contextos_portateis": {},
         "tokens_por_skill": {},
+        "etapas_prontas": {},
         "upload_counter": 0,
         "api_key": "",
         "selected_provider": DEFAULT_PROVIDER,

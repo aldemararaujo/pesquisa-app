@@ -15,6 +15,7 @@ from config import PIPELINE, PIPELINE_IDS
 
 _MARCADOR_CONTEXTO = "=== BLOCO DE CONTEXTO PORTÁTIL ==="
 _MARCADOR_FIM = "=== FIM DO BLOCO ==="
+_MARCADOR_CONCLUSAO = "=== ETAPA CONCLUÍDA ==="
 
 
 def _extrair_contexto_portatil(texto: str) -> str | None:
@@ -77,6 +78,13 @@ def render_chat(skill_index: int):
 
     st.subheader(skill["titulo"])
     st.caption(skill["descricao"])
+
+    # Indicador de status da etapa
+    etapa_pronta = st.session_state.get("etapas_prontas", {}).get(skill_id, False)
+    if etapa_pronta:
+        st.success("✅ Etapa concluída — clique em **Próxima etapa →** para avançar.")
+    elif get_historico(skill_id):
+        st.info("💬 Etapa em andamento — continue a conversa com a IA.")
 
     # Exibe histórico
     historico = get_historico(skill_id)
@@ -160,6 +168,11 @@ def render_chat(skill_index: int):
                     resposta_completa += texto
                     placeholder.markdown(resposta_completa + "▌")
 
+                # Detecta e remove marcador de conclusão antes de exibir e salvar
+                if _MARCADOR_CONCLUSAO in resposta_completa:
+                    st.session_state.setdefault("etapas_prontas", {})[skill_id] = True
+                    resposta_completa = resposta_completa.replace(_MARCADOR_CONCLUSAO, "").rstrip()
+
                 placeholder.markdown(resposta_completa)
 
             append_mensagem(skill_id, "assistant", resposta_completa)
@@ -184,16 +197,34 @@ def render_chat(skill_index: int):
             render_download_buttons(skill_id, ultimo_md)
 
     with col_av:
+        etapa_pronta = st.session_state.get("etapas_prontas", {}).get(skill_id, False)
+
         if skill_index < len(PIPELINE) - 1:
-            if st.button("Próxima etapa →", type="primary", use_container_width=True):
-                with st.spinner("Salvando contexto da etapa..."):
-                    _gerar_resumo_etapa(skill_id, skill["titulo"])
-                marcar_concluida(skill_id)
-                avancar_skill()
-                st.rerun()
+            if etapa_pronta:
+                if st.button("Próxima etapa →", type="primary", use_container_width=True):
+                    with st.spinner("Salvando contexto da etapa..."):
+                        _gerar_resumo_etapa(skill_id, skill["titulo"])
+                    marcar_concluida(skill_id)
+                    avancar_skill()
+                    st.rerun()
+            else:
+                if st.button("Próxima etapa →", type="secondary", use_container_width=True):
+                    st.warning(
+                        "⚠️ Esta etapa ainda não foi concluída. "
+                        "Continue a conversa — a IA sinalizará quando todos os "
+                        "entregáveis estiverem prontos."
+                    )
         else:
-            if st.button("Concluir pipeline ✓", type="primary", use_container_width=True):
-                with st.spinner("Salvando contexto da etapa..."):
-                    _gerar_resumo_etapa(skill_id, skill["titulo"])
-                marcar_concluida(skill_id)
-                st.success("Pipeline concluído! Todos os capítulos foram gerados.")
+            if etapa_pronta:
+                if st.button("Concluir pipeline ✓", type="primary", use_container_width=True):
+                    with st.spinner("Salvando contexto da etapa..."):
+                        _gerar_resumo_etapa(skill_id, skill["titulo"])
+                    marcar_concluida(skill_id)
+                    st.success("Pipeline concluído! Todos os capítulos foram gerados.")
+            else:
+                if st.button("Concluir pipeline ✓", type="secondary", use_container_width=True):
+                    st.warning(
+                        "⚠️ Esta etapa ainda não foi concluída. "
+                        "Continue a conversa — a IA sinalizará quando todos os "
+                        "entregáveis estiverem prontos."
+                    )

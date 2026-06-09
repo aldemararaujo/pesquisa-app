@@ -70,39 +70,74 @@ def _on_model_change():
     st.session_state["selected_model"] = st.session_state["_model_select"]
 
 
+def _detectar_provedor(chave: str):
+    """Retorna (provider_id, ambiguo). ambiguo=True quando sk- pode ser OpenAI ou DeepSeek."""
+    if not chave:
+        return None, False
+    if chave.startswith("sk-ant-"):
+        return "anthropic", False
+    if chave.startswith("AIza"):
+        return "gemini", False
+    if chave.startswith("sk-"):
+        return "openai", True
+    return None, False
+
+
 @st.dialog("Configuração", width="large")
 def _dialog_configuracao():
     provider_id = st.session_state.get("selected_provider", DEFAULT_PROVIDER)
+
+    # Sincroniza api_key do widget do render anterior
+    _wk = f"_api_key_{provider_id}"
+    if _wk in st.session_state:
+        st.session_state.api_key = st.session_state[_wk]
+    api_key = st.session_state.get("api_key", "")
+
+    # Auto-detecção do provedor pela chave
+    detected, ambiguous = _detectar_provedor(api_key)
+    if detected and detected != provider_id:
+        st.session_state[f"_api_key_{detected}"] = api_key
+        st.session_state["selected_provider"] = detected
+        st.session_state["selected_model"] = PROVIDERS[detected]["default_model"]
+        provider_id = detected
+
     prov = PROVIDERS[provider_id]
 
-    if st.session_state.get("api_key"):
-        st.success("API configurada", icon="✅")
+    # 1. Nome do provedor em destaque
+    if detected:
+        st.markdown(
+            f"<h2 style='margin-bottom:0.1rem'>{prov['label']}</h2>",
+            unsafe_allow_html=True,
+        )
+        if ambiguous:
+            ambi = st.radio(
+                "Confirme o provedor:",
+                options=["openai", "deepseek"],
+                format_func=lambda x: PROVIDERS[x]["label"],
+                index=0 if provider_id == "openai" else 1,
+                horizontal=True,
+                key="_ambi_provider",
+            )
+            if ambi != provider_id:
+                st.session_state["selected_provider"] = ambi
+                st.session_state["selected_model"] = PROVIDERS[ambi]["default_model"]
+                provider_id = ambi
+                prov = PROVIDERS[provider_id]
     else:
-        st.warning("Insira a chave de API abaixo", icon="⚠️")
+        provider_ids = list(PROVIDERS.keys())
+        current_idx = provider_ids.index(provider_id) if provider_id in provider_ids else 0
+        st.selectbox(
+            "Provedor de IA",
+            options=provider_ids,
+            format_func=lambda x: PROVIDERS[x]["label"],
+            index=current_idx,
+            key="_provider_select",
+            on_change=_on_provider_change,
+        )
+        provider_id = st.session_state.get("selected_provider", DEFAULT_PROVIDER)
+        prov = PROVIDERS[provider_id]
 
-    st.text_input(
-        prov["key_label"],
-        type="password",
-        value=st.session_state.get("api_key", ""),
-        placeholder=prov["key_placeholder"],
-        key=f"_api_key_{provider_id}",
-        help="Sua chave permanece apenas nesta sessão e não é armazenada.",
-    )
-    st.session_state.api_key = st.session_state.get(f"_api_key_{provider_id}", "")
-
-    st.divider()
-
-    provider_ids = list(PROVIDERS.keys())
-    current_provider_idx = provider_ids.index(provider_id) if provider_id in provider_ids else 0
-    st.selectbox(
-        "Provedor de IA",
-        options=provider_ids,
-        format_func=lambda x: PROVIDERS[x]["label"],
-        index=current_provider_idx,
-        key="_provider_select",
-        on_change=_on_provider_change,
-    )
-
+    # 2. Modelo
     model_options = prov["models"]
     current_model = st.session_state.get("selected_model", prov["default_model"])
     if current_model not in model_options:
@@ -114,6 +149,24 @@ def _dialog_configuracao():
         key="_model_select",
         on_change=_on_model_change,
     )
+
+    st.divider()
+
+    # 3. Chave de API
+    if api_key:
+        st.success("API configurada", icon="✅")
+    else:
+        st.warning("Insira a chave de API", icon="⚠️")
+
+    st.text_input(
+        prov["key_label"],
+        type="password",
+        value=api_key,
+        placeholder=prov["key_placeholder"],
+        key=f"_api_key_{provider_id}",
+        help="Sua chave permanece apenas nesta sessão e não é armazenada.",
+    )
+    st.session_state.api_key = st.session_state.get(f"_api_key_{provider_id}", "")
 
 
 # Painel lateral

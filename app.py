@@ -13,6 +13,21 @@ st.set_page_config(
 
 init_session()
 
+st.markdown("""
+<style>
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1rem !important;
+    }
+    section[data-testid="stSidebar"] > div:first-child {
+        padding-top: 1rem !important;
+    }
+    div[data-testid="stVerticalBlock"] > div {
+        gap: 0.25rem !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 
 def _on_provider_change():
     new_provider = st.session_state["_provider_select"]
@@ -28,7 +43,7 @@ def _on_model_change():
 
 # Painel lateral
 with st.sidebar:
-    st.markdown("## 📋 FiatLux")
+    st.markdown("## 📋 FiatLux - Projeto de Pesquisa")
     st.markdown("---")
 
     # Status e chave de API
@@ -111,6 +126,17 @@ if mostrar_cabecalho:
         st.markdown("Ao final de cada etapa, exporte em Markdown, Word ou PDF.")
 
     st.markdown("---")
+
+_total_tokens = sum(
+    v["input"] + v["output"]
+    for v in st.session_state.get("tokens_por_skill", {}).values()
+)
+_tab_title = (
+    f"FiatLux ({_total_tokens:,} tokens)"
+    if _total_tokens > 0
+    else "FiatLux - Projeto de Pesquisa"
+)
+st.markdown(f"<script>document.title = '{_tab_title}';</script>", unsafe_allow_html=True)
 
 skill_atual = st.session_state.skill_atual
 render_chat(skill_atual)

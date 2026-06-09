@@ -25,7 +25,75 @@ st.markdown("""
         padding-bottom: 1rem !important;
     }
     section[data-testid="stSidebar"] > div:first-child {
-        padding-top: 1rem !important;
+        padding-top: 0 !important;
+    }
+
+    /* Permite sticky dentro da sidebar */
+    section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        overflow: visible !important;
+    }
+
+    /* Cabeçalho fixo no topo da sidebar */
+    section[data-testid="stSidebar"] [data-testid="element-container"]:has(.sidebar-header) {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 100 !important;
+        background-color: #F0F2F6 !important;
+        padding-bottom: 0 !important;
+    }
+
+    /* Tipografia — três linhas */
+    .sidebar-header {
+        text-align: center;
+        padding: 0.75rem 2rem 0.75rem 0.5rem;
+        border-bottom: 1px solid rgba(31, 73, 125, 0.18);
+        position: relative;
+    }
+    .sh-icon {
+        font-size: 2rem;
+        line-height: 1.3;
+        display: block;
+    }
+    .sh-brand {
+        font-size: 1.45rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        color: #1F497D;
+        font-family: Georgia, 'Times New Roman', serif;
+        line-height: 1.2;
+        display: block;
+    }
+    .sh-tagline {
+        font-size: 0.62rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        opacity: 0.55;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 400;
+        margin-top: 0.15rem;
+        display: block;
+    }
+
+    /* Botão recolher sidebar */
+    .sh-collapse-btn {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: 1px solid rgba(31, 73, 125, 0.3);
+        border-radius: 6px;
+        color: #1F497D;
+        cursor: pointer;
+        font-size: 1.1rem;
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        line-height: 1;
+        transition: background 0.15s;
+    }
+    .sh-collapse-btn:hover {
+        background: rgba(31, 73, 125, 0.1);
     }
     div[data-testid="stVerticalBlock"] > div {
         gap: 0.25rem !important;
@@ -189,7 +257,17 @@ def _dialog_configuracao():
 
 # Painel lateral
 with st.sidebar:
-    st.markdown("## 📋 FiatLux - Projeto de Pesquisa")
+    st.markdown("""
+<div class="sidebar-header">
+    <div class="sh-icon">📋</div>
+    <div class="sh-brand">FiatLux</div>
+    <div class="sh-tagline">Projeto de Pesquisa</div>
+    <button class="sh-collapse-btn" title="Recolher"
+        onclick="(function(){var b=document.querySelector('[data-testid=\\"stSidebarCollapseButton\\"] button');if(b)b.click();})()">
+        &#8249;
+    </button>
+</div>
+""", unsafe_allow_html=True)
 
     if st.button("ℹ️ Como usar", use_container_width=True):
         _dialog_como_usar()

@@ -74,6 +74,16 @@ st.markdown("""
         display: block;
     }
 
+    .sh-version {
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+        opacity: 0.4;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 400;
+        margin-top: 0.2rem;
+        display: block;
+    }
+
     /* Botão recolher sidebar */
     .sh-collapse-btn {
         position: absolute;
@@ -262,6 +272,7 @@ with st.sidebar:
     <div class="sh-icon">📋</div>
     <div class="sh-brand">FiatLux</div>
     <div class="sh-tagline">Projeto de Pesquisa</div>
+    <div class="sh-version">v1.1.0 &middot; jun 2026</div>
     <button class="sh-collapse-btn" title="Recolher"
         onclick="(function(){var b=document.querySelector('[data-testid=\\"stSidebarCollapseButton\\"] button');if(b)b.click();})()">
         &#8249;

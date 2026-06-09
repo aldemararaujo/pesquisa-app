@@ -51,6 +51,13 @@ PROVIDERS = {
 
 DEFAULT_PROVIDER = "anthropic"
 
+CONTEXT_LIMITS = {
+    "anthropic": 200_000,
+    "openai": 128_000,
+    "gemini": 1_000_000,
+    "deepseek": 64_000,
+}
+
 PIPELINE = [
     {
         "id": "research-topic-mapper",

@@ -8,6 +8,8 @@ def init_session():
         "skills_concluidas": set(),
         "historico": {},
         "contextos_portateis": {},
+        "tokens_por_skill": {},
+        "upload_counter": 0,
         "api_key": "",
         "selected_provider": DEFAULT_PROVIDER,
         "selected_model": PROVIDERS[DEFAULT_PROVIDER]["default_model"],
@@ -15,6 +17,14 @@ def init_session():
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
+
+def add_tokens(skill_id: str, input_tokens: int, output_tokens: int):
+    tokens = st.session_state.setdefault("tokens_por_skill", {})
+    if skill_id not in tokens:
+        tokens[skill_id] = {"input": 0, "output": 0}
+    tokens[skill_id]["input"] += input_tokens
+    tokens[skill_id]["output"] += output_tokens
 
 
 def get_historico(skill_id: str) -> list:

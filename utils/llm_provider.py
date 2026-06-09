@@ -8,12 +8,12 @@ class AuthenticationError(Exception):
 
 class BaseLLMProvider(ABC):
     @abstractmethod
-    def stream_response(self, system: str, messages: list, model: str, api_key: str) -> Iterator[str]:
+    def stream_response(self, system: str, messages: list, model: str, api_key: str, on_tokens=None) -> Iterator[str]:
         pass
 
 
 class AnthropicProvider(BaseLLMProvider):
-    def stream_response(self, system: str, messages: list, model: str, api_key: str) -> Iterator[str]:
+    def stream_response(self, system: str, messages: list, model: str, api_key: str, on_tokens=None) -> Iterator[str]:
         import anthropic
         try:
             client = anthropic.Anthropic(api_key=api_key)
@@ -25,6 +25,9 @@ class AnthropicProvider(BaseLLMProvider):
             ) as stream:
                 for text in stream.text_stream:
                     yield text
+                if on_tokens:
+                    msg = stream.get_final_message()
+                    on_tokens(msg.usage.input_tokens, msg.usage.output_tokens)
         except anthropic.AuthenticationError as e:
             raise AuthenticationError(str(e)) from e
 
@@ -33,7 +36,7 @@ class OpenAIProvider(BaseLLMProvider):
     def __init__(self, base_url: str | None = None):
         self.base_url = base_url
 
-    def stream_response(self, system: str, messages: list, model: str, api_key: str) -> Iterator[str]:
+    def stream_response(self, system: str, messages: list, model: str, api_key: str, on_tokens=None) -> Iterator[str]:
         from openai import OpenAI, AuthenticationError as OAIAuthError
         kwargs: dict = {"api_key": api_key}
         if self.base_url:
@@ -41,22 +44,28 @@ class OpenAIProvider(BaseLLMProvider):
         try:
             client = OpenAI(**kwargs)
             openai_messages = [{"role": "system", "content": system}] + messages
-            response = client.chat.completions.create(
-                model=model,
-                max_tokens=8096,
-                messages=openai_messages,
-                stream=True,
-            )
+            create_kwargs: dict = {
+                "model": model,
+                "max_tokens": 8096,
+                "messages": openai_messages,
+                "stream": True,
+            }
+            if on_tokens:
+                create_kwargs["stream_options"] = {"include_usage": True}
+            response = client.chat.completions.create(**create_kwargs)
             for chunk in response:
-                content = chunk.choices[0].delta.content
-                if content:
-                    yield content
+                if chunk.choices:
+                    content = chunk.choices[0].delta.content
+                    if content:
+                        yield content
+                elif on_tokens and chunk.usage:
+                    on_tokens(chunk.usage.prompt_tokens, chunk.usage.completion_tokens)
         except OAIAuthError as e:
             raise AuthenticationError(str(e)) from e
 
 
 class GeminiProvider(BaseLLMProvider):
-    def stream_response(self, system: str, messages: list, model: str, api_key: str) -> Iterator[str]:
+    def stream_response(self, system: str, messages: list, model: str, api_key: str, on_tokens=None) -> Iterator[str]:
         import google.generativeai as genai
         try:
             genai.configure(api_key=api_key)
@@ -74,6 +83,12 @@ class GeminiProvider(BaseLLMProvider):
             for chunk in response:
                 if chunk.text:
                     yield chunk.text
+            if on_tokens:
+                try:
+                    meta = response.usage_metadata
+                    on_tokens(meta.prompt_token_count, meta.candidates_token_count)
+                except Exception:
+                    pass
         except Exception as e:
             msg = str(e).lower()
             if any(k in msg for k in ("api_key", "api key", "authentication", "401", "invalid")):

@@ -7,6 +7,7 @@ from utils.session import (
     save_portable_context,
     marcar_concluida,
     avancar_skill,
+    add_tokens,
 )
 from utils.llm_provider import get_provider, AuthenticationError as LLMAuthError
 from components.file_download import render_download_buttons
@@ -47,13 +48,53 @@ def render_chat(skill_index: int):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
+    # Uploader de arquivo (expander acima do campo de chat)
+    upload_key = f"upload_{skill_id}_{st.session_state.get('upload_counter', 0)}"
+    with st.expander("Anexar arquivo ao contexto", expanded=False):
+        uploaded_file = st.file_uploader(
+            "Formatos aceitos: .txt  .md  .docx",
+            type=["txt", "md", "docx"],
+            key=upload_key,
+            label_visibility="collapsed",
+        )
+
     # Entrada do usuário
     user_input = st.chat_input("Digite sua mensagem...")
 
-    if user_input:
-        append_mensagem(skill_id, "user", user_input)
+    if user_input or uploaded_file:
+        # Extrai conteúdo do arquivo se houver
+        file_content = ""
+        file_name = ""
+        if uploaded_file:
+            file_name = uploaded_file.name
+            if file_name.endswith(".docx"):
+                from io import BytesIO
+                from docx import Document as DocxDocument
+                doc = DocxDocument(BytesIO(uploaded_file.read()))
+                file_content = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+            else:
+                file_content = uploaded_file.read().decode("utf-8", errors="replace")
+            st.session_state.upload_counter = st.session_state.get("upload_counter", 0) + 1
+
+        # Monta mensagem para o LLM (arquivo + texto do usuário)
+        partes = []
+        if file_content:
+            partes.append(f"[Arquivo: {file_name}]\n\n{file_content}")
+        if user_input:
+            partes.append(user_input)
+        mensagem_llm = "\n\n---\n\n".join(partes)
+
+        # Texto exibido na bolha do chat
+        if user_input and file_name:
+            display_text = f"{user_input}\n\n*Arquivo anexado: {file_name}*"
+        elif file_name:
+            display_text = f"*Arquivo anexado: {file_name}*"
+        else:
+            display_text = user_input
+
+        append_mensagem(skill_id, "user", mensagem_llm)
         with st.chat_message("user"):
-            st.markdown(user_input)
+            st.markdown(display_text)
 
         api_key = st.session_state.get("api_key", "")
         if not api_key:
@@ -72,11 +113,14 @@ def render_chat(skill_index: int):
             contexto_prefix = build_context_prefix(ids_anteriores)
             system = contexto_prefix + skill_prompt if contexto_prefix else skill_prompt
 
+            def _on_tokens(input_t: int, output_t: int):
+                add_tokens(skill_id, input_t, output_t)
+
             with st.chat_message("assistant"):
                 resposta_completa = ""
                 placeholder = st.empty()
 
-                for texto in provider.stream_response(system, get_historico(skill_id), model, api_key):
+                for texto in provider.stream_response(system, get_historico(skill_id), model, api_key, on_tokens=_on_tokens):
                     resposta_completa += texto
                     placeholder.markdown(resposta_completa + "▌")
 

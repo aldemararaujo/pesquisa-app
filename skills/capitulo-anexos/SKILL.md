@@ -398,104 +398,13 @@ Arquivo: `11.10-declaracao-condicoes-instituicao.docx`
 
 ---
 
-## Fase 7 — Salvar arquivos DOCX
+## Fase 7 — Entregáveis
 
-### 7.1 Levantamento do diretório de saída
+Após apresentar o texto completo do Capítulo 11, inclua a seguinte mensagem ao final da resposta:
 
-Perguntar ao usuário, em uma única mensagem:
+> "Capítulo 11 gerado. Use os botões abaixo para baixar o resultado nos formatos .md, .docx e .pdf."
 
-1. **Diretório de saída:** caminho completo onde os arquivos devem ser salvos. Sugestão padrão: Desktop (`C:\Users\[usuário]\Desktop\Anexos-Pesquisa`) ou pasta de sincronização do Google Drive local (ex.: `C:\Users\[usuário]\Google Drive\Meu Drive\Projetos\Anexos`).
-2. **Prefixo dos arquivos** (opcional): nome de identificação do projeto para prefixar os arquivos (ex.: `meu-projeto`). Se não fornecido, usar os nomes padrão definidos abaixo.
-
-Se o usuário não responder ou responder "padrão", usar o Desktop como destino e os nomes padrão.
-
----
-
-### 7.2 Verificação do pandoc
-
-```bash
-pandoc --version
-```
-
-Se pandoc não estiver instalado, informar:
-
-"O pandoc não foi encontrado no sistema. Para gerar os arquivos DOCX, instale o pandoc em https://pandoc.org/installing.html (Windows: baixar o instalador .msi). Após a instalação, reinicie o terminal e execute a Fase 7 novamente."
-
-Se pandoc estiver instalado, prosseguir.
-
----
-
-### 7.3 Salvar arquivos Markdown intermediários e converter para DOCX
-
-Para cada anexo, executar a seguinte sequência:
-
-**Passo 1:** Salvar o texto completo do anexo como arquivo Markdown usando a ferramenta Write.
-
-**Passo 2:** Converter para DOCX com pandoc via Bash:
-
-```bash
-pandoc "[diretório]/[nome-base].md" \
-  -o "[diretório]/[nome-base].docx" \
-  --metadata title="[Título do Anexo]" \
-  -V lang=pt-BR
-```
-
-**Lista completa de arquivos a gerar:**
-
-| Arquivo .md | Arquivo .docx | Título do anexo |
-|---|---|---|
-| `11.1-tcle.md` | `11.1-tcle.docx` | Termo de Consentimento Livre e Esclarecido (TCLE) |
-| `11.2-formulario-coleta.md` | `11.2-formulario-coleta.docx` | Formulário de Coleta de Dados |
-| `11.3-tabela-dados.md` | `11.3-tabela-dados.docx` | Tabela de Dados Individuais |
-| `11.4-lattes.md` | `11.4-lattes.docx` | Curriculum Lattes dos Pesquisadores |
-| `11.5a-declaracao-cep.md` | `11.5a-declaracao-cep.docx` | Declaração de Conflitos de Interesse (CEP) |
-| `11.5b-icmje-[nome].md` | `11.5b-icmje-[nome].docx` | Formulário ICMJE — [Nome do Pesquisador] |
-| `11.6-autorizacao-pesquisa.md` | `11.6-autorizacao-pesquisa.docx` | Autorização para Realização da Pesquisa |
-| `11.7-termo-pesquisador-responsavel.md` | `11.7-termo-pesquisador-responsavel.docx` | Termo de Responsabilidade do Pesquisador Responsável |
-| `11.8-termo-colaborador-[nome].md` | `11.8-termo-colaborador-[nome].docx` | Termo de Responsabilidade do Pesquisador Colaborador |
-| `11.9-termo-responsabilidade-instituicao.md` | `11.9-termo-responsabilidade-instituicao.docx` | Termo de Responsabilidade da Instituição |
-| `11.10-declaracao-condicoes-instituicao.md` | `11.10-declaracao-condicoes-instituicao.docx` | Declaração de Condições da Instituição |
-
----
-
-### 7.4 Converter cada DOCX para PDF e confirmar ao usuário
-
-Após gerar todos os arquivos DOCX, converter cada um para PDF com docx2pdf
-(fallback: reportlab). Um PDF por DOCX, mesmo nome, extensão .pdf.
-
-**Dependências:**
-```
-docx2pdf   → pip install docx2pdf
-```
-
-Após a geração bem-sucedida de todos os DOCX e PDFs, exibir mensagem de confirmação
-com os caminhos completos de todos os arquivos gerados:
-
-```
-Capítulo 11 — Anexos gerados com sucesso.
-
-Arquivos salvos em: [diretório de saída]
-
-  11.1  ->  11.1-tcle.docx  |  11.1-tcle.pdf
-  11.2  ->  11.2-formulario-coleta.docx  |  11.2-formulario-coleta.pdf
-  11.3  ->  11.3-tabela-dados.docx  |  11.3-tabela-dados.pdf
-  11.4  ->  11.4-lattes.docx  |  11.4-lattes.pdf
-  11.5a ->  11.5a-declaracao-cep.docx  |  11.5a-declaracao-cep.pdf
-  11.5b ->  11.5b-icmje-[nome].docx  |  11.5b-icmje-[nome].pdf  (um par por pesquisador)
-  11.6  ->  11.6-autorizacao-pesquisa.docx  |  11.6-autorizacao-pesquisa.pdf  [papel timbrado]
-  11.7  ->  11.7-termo-pesquisador-responsavel.docx  |  11.7-termo-pesquisador-responsavel.pdf  [papel timbrado]
-  11.8  ->  11.8-termo-colaborador-[nome].docx  |  11.8-termo-colaborador-[nome].pdf  (um par por colaborador; papel timbrado)
-  11.9  ->  11.9-termo-responsabilidade-instituicao.docx  |  11.9-termo-responsabilidade-instituicao.pdf  [papel timbrado]
-  11.10 ->  11.10-declaracao-condicoes-instituicao.docx  |  11.10-declaracao-condicoes-instituicao.pdf  [papel timbrado]
-
-Para importar no Google Drive:
-  1. Acesse drive.google.com
-  2. Clique em "+ Novo" / "Fazer upload de arquivo"
-  3. Selecione o(s) arquivo(s) .docx
-  4. Clique com o botão direito no arquivo / "Abrir com" / "Documentos Google"
-
-Lembrete: os documentos 11.6, 11.7, 11.8, 11.9 e 11.10 devem ser impressos em papel timbrado da instituição e assinados à tinta antes da submissão ao CEP.
-```
+O sistema gera os arquivos automaticamente — **não inclua scripts, código ou blocos de dependências na resposta.**
 
 **Próxima etapa:** solicite a skill `/referencias-bibliograficas` para consolidar e formatar a lista final de referências.
 

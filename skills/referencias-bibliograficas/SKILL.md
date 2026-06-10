@@ -118,93 +118,15 @@ Aplicar o formato correto conforme o tipo de cada referência (Seção 2 do arqu
 
 ---
 
-## Fase 5 — Geração do arquivo DOCX
+## Fase 5 — Entregáveis
 
-### 5.1 Levantamento do diretório de saída
+Após apresentar a lista final de referências, inclua a seguinte mensagem ao final da resposta:
 
-Perguntar ao usuário, em uma única mensagem:
+> "Referências Bibliográficas geradas. Use os botões abaixo para baixar o resultado nos formatos .md, .docx e .pdf."
 
-1. **Diretório de saída:** caminho completo onde o arquivo deve ser salvo. Sugestão padrão: Desktop (`C:\Users\[usuário]\Desktop`) ou pasta de sincronização do Google Drive local.
-2. **Nome base do arquivo** (sem extensão): padrão sugerido: `referencias-bibliograficas`. O usuário pode personalizar.
+O sistema gera os arquivos automaticamente — **não inclua scripts, código ou blocos de dependências na resposta.**
 
-Se o usuário não responder, usar o nome padrão e o Desktop como destino.
-
----
-
-### 5.2 Verificação do pandoc
-
-```bash
-pandoc --version
-```
-
-Se pandoc não estiver instalado, informar:
-"O pandoc não foi encontrado no sistema. Instale em https://pandoc.org/installing.html. Após a instalação, reinicie o terminal e execute a Fase 5 novamente."
-
----
-
-### 5.3 Salvar o arquivo Markdown e converter para DOCX
-
-Usar a ferramenta **Write** para salvar a lista final em arquivo Markdown. Cabeçalho YAML:
-
-```yaml
----
-title: "Referências Bibliográficas"
-lang: pt-BR
----
-```
-
-Estrutura do arquivo Markdown:
-
-```markdown
-# Referências Bibliográficas
-
-1. [Referência 1 completa em Vancouver]
-2. [Referência 2 completa em Vancouver]
-...
-N. [Referência N completa em Vancouver]
-
----
-*Lista gerada a partir das referências dos Capítulos 1 a 11. Total: N referências únicas (N duplicatas removidas).*
-*Campos marcados como [a preencher] requerem complementação antes da submissão ao CEP.*
-```
-
-Converter para DOCX com python-docx (ou pandoc se disponível):
-
-```
-python-docx   → pip install python-docx
-docx2pdf      → pip install docx2pdf
-```
-
-Gerar `[nome-base].docx` com python-docx (Calibri 11pt; título "Referências Bibliográficas"
-bold 14pt azul `#1F497D`; margens 2,5 cm sup/inf e 3 cm lat; espaçamento 1,5).
-Em seguida, converter para `[nome-base].pdf` com docx2pdf; se falhar, usar reportlab.
-Nome base: `referencias-bibliograficas_[AAAAMMDD]`. [O sistema gerará o arquivo para download]
-
----
-
-### 5.4 Confirmar ao usuário
-
-```
-Referências Bibliográficas geradas com sucesso.
-
-  Total de referências brutas recebidas:  N
-  Duplicatas removidas:                   N
-  Referências únicas na lista final:      N
-  Referências com campos [a preencher]:   N
-
-Arquivos salvos:
-  MD    ->  C:\Users\aldem\[nome-base].md   (arquivo-fonte; manter para edições futuras)
-  DOCX  ->  C:\Users\aldem\[nome-base].docx
-  PDF   ->  C:\Users\aldem\[nome-base].pdf
-
-Para importar no Google Drive:
-  1. Acesse drive.google.com
-  2. Clique em "+ Novo" / "Fazer upload de arquivo"
-  3. Selecione o arquivo .docx
-  4. Clique com o botão direito / "Abrir com" / "Documentos Google"
-```
-
-Se houver referências com `[a preencher]`, listá-las separadamente ao final da confirmação, numeradas, para facilitar o preenchimento pelo usuário.
+Se houver referências com `[a preencher]`, listá-las separadamente ao final, numeradas, para facilitar o preenchimento pelo usuário.
 
 **Próxima etapa:** solicite a skill `/elementos-pre-textuais` para gerar a capa, o sumário e a lista de abreviaturas — última etapa do projeto.
 

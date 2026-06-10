@@ -3,7 +3,12 @@ from config import PIPELINE, CONTEXT_LIMITS
 
 
 def render_pipeline_nav():
-    st.sidebar.markdown("**TRILHA DA PESQUISA**")
+    st.sidebar.markdown(
+        '<p style="font-weight:700;font-size:0.85rem;letter-spacing:0.05em;'
+        'margin:0.4rem 0 0.1rem;padding:0;line-height:1.5">'
+        'TRILHA DA PESQUISA</p>',
+        unsafe_allow_html=True,
+    )
 
     fases_vistas = []
     for i, skill in enumerate(PIPELINE):
@@ -12,7 +17,12 @@ def render_pipeline_nav():
             if fases_vistas:
                 st.sidebar.markdown("---")
             fases_vistas.append(fase)
-            st.sidebar.markdown(f"**{fase}**")
+            st.sidebar.markdown(
+                f'<p style="font-weight:700;font-size:0.9rem;'
+                f'margin:0.5rem 0 0.2rem;padding:0;line-height:1.5">'
+                f'{fase}</p>',
+                unsafe_allow_html=True,
+            )
 
         atual = st.session_state.skill_atual
         concluidas = st.session_state.skills_concluidas

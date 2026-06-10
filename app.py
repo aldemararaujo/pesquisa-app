@@ -49,12 +49,6 @@ st.markdown("""
         line-height: 1.3 !important;
     }
 
-    /* Títulos de fase (Pré-redação, Capítulos, Finalização) — espaço extra */
-    section[data-testid="stSidebar"] [data-testid="element-container"]:has(.stMarkdown p strong) {
-        padding-top: 0.45rem !important;
-        padding-bottom: 0.2rem !important;
-    }
-
     /* Parágrafos gerados por st.markdown na sidebar */
     section[data-testid="stSidebar"] .stMarkdown p {
         margin-top: 0 !important;

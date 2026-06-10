@@ -5,7 +5,7 @@ from config import PIPELINE, CONTEXT_LIMITS
 def render_pipeline_nav():
     st.sidebar.markdown(
         '<p style="font-weight:700;font-size:0.85rem;letter-spacing:0.05em;'
-        'margin:0;padding:0.7rem 0 0.3rem;line-height:1.5">'
+        'margin:0;padding:0.9rem 0 0.4rem;line-height:1.5">'
         'TRILHA DA PESQUISA</p>',
         unsafe_allow_html=True,
     )
@@ -19,7 +19,7 @@ def render_pipeline_nav():
             fases_vistas.append(fase)
             st.sidebar.markdown(
                 f'<p style="font-weight:700;font-size:0.9rem;'
-                f'margin:0;padding:0.8rem 0 0.35rem;line-height:1.5">'
+                f'margin:0;padding:1.0rem 0 0.45rem;line-height:1.5">'
                 f'{fase}</p>',
                 unsafe_allow_html=True,
             )

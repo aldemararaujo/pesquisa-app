@@ -10,6 +10,19 @@ def render_download_buttons(skill_id: str, texto_md: str):
 
     data_hoje = date.today().strftime("%Y%m%d")
     nome_base = f"{skill_id}_{data_hoje}"
+    cache_key = f"_dl_{skill_id}_{abs(hash(texto_md)) % 10**9}"
+
+    if cache_key not in st.session_state:
+        barra = st.progress(0, text="Preparando conteúdo...")
+        barra.progress(25, text="Gerando documento Word...")
+        docx_bytes = markdown_para_docx(texto_md, titulo=skill_id)
+        barra.progress(70, text="Gerando PDF...")
+        pdf_bytes = docx_para_pdf(docx_bytes)
+        barra.progress(100, text="✅ Arquivos prontos para download!")
+        barra.empty()
+        st.session_state[cache_key] = (docx_bytes, pdf_bytes)
+    else:
+        docx_bytes, pdf_bytes = st.session_state[cache_key]
 
     col1, col2, col3 = st.columns(3)
 
@@ -23,7 +36,6 @@ def render_download_buttons(skill_id: str, texto_md: str):
         )
 
     with col2:
-        docx_bytes = markdown_para_docx(texto_md, titulo=skill_id)
         st.download_button(
             label="Baixar .docx",
             data=docx_bytes,
@@ -33,7 +45,6 @@ def render_download_buttons(skill_id: str, texto_md: str):
         )
 
     with col3:
-        pdf_bytes = docx_para_pdf(docx_bytes)
         if pdf_bytes:
             st.download_button(
                 label="Baixar .pdf",

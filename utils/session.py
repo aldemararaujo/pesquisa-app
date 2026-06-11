@@ -14,6 +14,8 @@ def init_session():
         "api_key": "",
         "selected_provider": DEFAULT_PROVIDER,
         "selected_model": PROVIDERS[DEFAULT_PROVIDER]["default_model"],
+        "modo_app": "pipeline",
+        "conselho": {},
     }
     for key, value in defaults.items():
         if key not in st.session_state:

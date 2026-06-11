@@ -2,6 +2,7 @@ import streamlit as st
 from utils.session import init_session
 from components.pipeline_nav import render_pipeline_nav
 from components.chat_ui import render_chat
+from components.council_ui import render_council
 from config import PROVIDERS, DEFAULT_PROVIDER
 
 st.set_page_config(
@@ -259,6 +260,11 @@ Ao final de cada etapa, exporte o resultado em Markdown, Word ou PDF.
 **5. Monitore o uso de contexto**
 A barra na sidebar mostra quantos tokens foram consumidos na etapa atual.
 O total acumulado da sessão aparece ao final da barra lateral.
+
+**6. Conselho de Especialistas**
+Fora do pipeline, o Conselho analisa um documento pronto (projeto, relatório
+final ou artigo): oito especialistas emitem pareceres, revisam uns aos outros
+de forma anônima e um relator consolida tudo em um relatório com sugestões.
     """)
 
 
@@ -390,8 +396,24 @@ with st.sidebar:
         _dialog_configuracao()
 
     st.markdown("---")
+
+    _conselho_ativo = st.session_state.get("modo_app") == "conselho"
+    _conselho_label = "🏛️ Conselho de Especialistas"
+    if st.button(
+        _conselho_label,
+        use_container_width=True,
+        type="primary" if _conselho_ativo else "secondary",
+    ):
+        if not _conselho_ativo:
+            st.session_state.modo_app = "conselho"
+            st.rerun()
+
+    st.markdown("---")
     render_pipeline_nav()
 
 
-skill_atual = st.session_state.skill_atual
-render_chat(skill_atual)
+if st.session_state.get("modo_app") == "conselho":
+    render_council()
+else:
+    skill_atual = st.session_state.skill_atual
+    render_chat(skill_atual)

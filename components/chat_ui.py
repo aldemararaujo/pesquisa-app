@@ -36,6 +36,16 @@ def _ultimo_md(skill_id: str) -> str:
     return ""
 
 
+def _ler_arquivo(uploaded_file) -> str:
+    """Extrai o texto de um arquivo anexado (.txt, .md ou .docx)."""
+    if uploaded_file.name.endswith(".docx"):
+        from io import BytesIO
+        from docx import Document as DocxDocument
+        doc = DocxDocument(BytesIO(uploaded_file.read()))
+        return "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+    return uploaded_file.read().decode("utf-8", errors="replace")
+
+
 def _gerar_resumo_etapa(skill_id: str, titulo: str):
     historico = get_historico(skill_id)
     if not historico:
@@ -79,38 +89,61 @@ def render_chat(skill_index: int):
     st.subheader(skill["titulo"])
     st.caption(skill["descricao"])
 
+    api_key_ok = bool(st.session_state.get("api_key"))
+
     # Indicador de status da etapa
     etapa_pronta = st.session_state.get("etapas_prontas", {}).get(skill_id, False)
+    historico = get_historico(skill_id)
     if etapa_pronta:
         st.success("✅ Etapa concluída — clique em **Próxima etapa →** para avançar.")
-    elif get_historico(skill_id):
+    elif historico:
         st.info("💬 Etapa em andamento — continue a conversa com a IA.")
 
+    # Tela de boas-vindas quando a etapa ainda não tem conversa
+    if not historico:
+        if not api_key_ok:
+            st.warning(
+                "Antes de começar, configure sua chave de API: abra "
+                "**⚠️ Configuração** na barra lateral, escolha o provedor "
+                "e cole sua chave. Ela permanece apenas nesta sessão.",
+                icon="🔑",
+            )
+        else:
+            st.info(
+                "**Como começar esta etapa:** descreva sua ideia ou peça "
+                "orientação à IA no campo de mensagem abaixo. Para enviar "
+                "material de apoio (.txt, .md ou .docx), use o clipe 📎 "
+                "dentro do próprio campo de chat.",
+                icon="💡",
+            )
+            if st.button("▶ Iniciar etapa com a IA", type="primary"):
+                st.session_state["_pending_input"] = (
+                    "Vamos iniciar esta etapa. Oriente-me sobre as "
+                    "informações de que você precisa."
+                )
+                st.rerun()
+
     # Exibe histórico
-    historico = get_historico(skill_id)
     for msg in historico:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Âncora CSS + botão toggle (posicionado via CSS em app.py)
-    upload_key = f"upload_{skill_id}_{st.session_state.get('upload_counter', 0)}"
-    _vis_key = f"_upload_vis_{skill_id}"
-    _upload_vis = st.session_state.get(_vis_key, False)
-    st.markdown('<span id="_ul_anchor_"></span>', unsafe_allow_html=True)
-    if st.button("✕" if _upload_vis else "＋", key=f"_toggle_up_{skill_id}", help="Anexar arquivo ao contexto"):
-        st.session_state[_vis_key] = not _upload_vis
+    # Entrada do usuário (com anexo nativo no próprio campo)
+    submitted = st.chat_input(
+        "Digite sua mensagem..." if api_key_ok else "Configure a chave de API para começar",
+        accept_file=True,
+        file_type=["txt", "md", "docx"],
+        disabled=not api_key_ok,
+    )
 
+    user_input = None
     uploaded_file = None
-    if st.session_state.get(_vis_key, False):
-        uploaded_file = st.file_uploader(
-            "Formatos aceitos: .txt  .md  .docx",
-            type=["txt", "md", "docx"],
-            key=upload_key,
-            label_visibility="collapsed",
-        )
-
-    # Entrada do usuário
-    user_input = st.chat_input("Digite sua mensagem...")
+    if submitted:
+        user_input = submitted.text or None
+        if submitted.files:
+            uploaded_file = submitted.files[0]
+    else:
+        user_input = st.session_state.pop("_pending_input", None)
 
     if user_input or uploaded_file:
         # Extrai conteúdo do arquivo se houver
@@ -118,14 +151,7 @@ def render_chat(skill_index: int):
         file_name = ""
         if uploaded_file:
             file_name = uploaded_file.name
-            if file_name.endswith(".docx"):
-                from io import BytesIO
-                from docx import Document as DocxDocument
-                doc = DocxDocument(BytesIO(uploaded_file.read()))
-                file_content = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
-            else:
-                file_content = uploaded_file.read().decode("utf-8", errors="replace")
-            st.session_state.upload_counter = st.session_state.get("upload_counter", 0) + 1
+            file_content = _ler_arquivo(uploaded_file)
 
         # Monta mensagem para o LLM (arquivo + texto do usuário)
         partes = []

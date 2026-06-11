@@ -1,6 +1,12 @@
 import streamlit as st
 from config import PIPELINE, CONTEXT_LIMITS
 
+_FASE_ICONES = {
+    "Pré-redação": "🧭",
+    "Capítulos": "📖",
+    "Finalização": "📦",
+}
+
 
 def render_pipeline_nav():
     st.sidebar.markdown(
@@ -10,45 +16,46 @@ def render_pipeline_nav():
         unsafe_allow_html=True,
     )
 
-    fases_vistas = []
-    for i, skill in enumerate(PIPELINE):
-        fase = skill["fase"]
-        if fase not in fases_vistas:
-            if fases_vistas:
-                st.sidebar.markdown("---")
-            fases_vistas.append(fase)
-            st.sidebar.markdown(
-                f'<p style="font-weight:700;font-size:0.9rem;'
-                f'margin:0;padding:0.8rem 0 0.65rem;line-height:1.5">'
-                f'{fase}</p>',
-                unsafe_allow_html=True,
-            )
+    atual = st.session_state.skill_atual
+    concluidas = st.session_state.skills_concluidas
+    fase_atual = PIPELINE[atual]["fase"]
 
-        atual = st.session_state.skill_atual
-        concluidas = st.session_state.skills_concluidas
+    # Agrupa etapas por fase, preservando a ordem do pipeline
+    fases = []
+    for skill in PIPELINE:
+        if skill["fase"] not in fases:
+            fases.append(skill["fase"])
 
-        if skill["id"] in concluidas:
-            icone = "✅"
-        elif i == atual:
-            icone = "▶"
-        else:
-            icone = "○"
+    for fase in fases:
+        indices = [i for i, s in enumerate(PIPELINE) if s["fase"] == fase]
+        feitas = sum(1 for i in indices if PIPELINE[i]["id"] in concluidas)
+        icone_fase = _FASE_ICONES.get(fase, "📁")
+        rotulo = f"{icone_fase} {fase} · {feitas}/{len(indices)}"
 
-        label = f"{icone} {skill['titulo']}"
+        with st.sidebar.expander(rotulo, expanded=(fase == fase_atual)):
+            for i in indices:
+                skill = PIPELINE[i]
 
-        if i == atual:
-            if st.sidebar.button(label, key=f"nav_{i}", use_container_width=True, type="primary"):
-                pass
-        else:
-            if st.sidebar.button(label, key=f"nav_{i}", use_container_width=True):
-                st.session_state.skill_atual = i
-                st.rerun()
+                if skill["id"] in concluidas:
+                    icone = "✅"
+                elif i == atual:
+                    icone = "▶"
+                else:
+                    icone = "○"
+
+                label = f"{icone} {skill['titulo']}"
+
+                if i == atual:
+                    st.button(label, key=f"nav_{i}", use_container_width=True, type="primary")
+                else:
+                    if st.button(label, key=f"nav_{i}", use_container_width=True):
+                        st.session_state.skill_atual = i
+                        st.rerun()
 
     st.sidebar.markdown("---")
 
     # Indicador de uso de contexto da etapa atual
-
-    skill_id_atual = PIPELINE[st.session_state.skill_atual]["id"]
+    skill_id_atual = PIPELINE[atual]["id"]
     tokens = st.session_state.get("tokens_por_skill", {}).get(skill_id_atual, {"input": 0, "output": 0})
     total_tokens = tokens["input"] + tokens["output"]
     provider_id = st.session_state.get("selected_provider", "anthropic")
@@ -75,7 +82,7 @@ def render_pipeline_nav():
     st.sidebar.progress(pct_ctx)
 
     st.sidebar.markdown("---")
-    concluidas_n = len(st.session_state.skills_concluidas)
+    concluidas_n = len(concluidas)
     total_n = len(PIPELINE)
     progresso = concluidas_n / total_n
 
@@ -98,3 +105,11 @@ def render_pipeline_nav():
 </div>
 """, unsafe_allow_html=True)
     st.sidebar.progress(progresso)
+
+    # Total acumulado da sessão (substitui o título dinâmico da aba, que não funcionava)
+    _sessao = sum(
+        v["input"] + v["output"]
+        for v in st.session_state.get("tokens_por_skill", {}).values()
+    )
+    if _sessao > 0:
+        st.sidebar.caption(f"Total da sessão: {_sessao:,} tokens")

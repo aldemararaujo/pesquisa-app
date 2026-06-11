@@ -69,6 +69,17 @@ st.markdown("""
         padding-bottom: 0 !important;
     }
 
+    /* Expansores de fase na sidebar */
+    section[data-testid="stSidebar"] [data-testid="stExpander"] {
+        border: 1px solid rgba(31, 73, 125, 0.15) !important;
+        border-radius: 8px !important;
+        margin-bottom: 0.3rem !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stExpander"] summary p {
+        font-weight: 700 !important;
+        font-size: 0.88rem !important;
+    }
+
     /* Cabeçalho fixo no topo da sidebar */
     section[data-testid="stSidebar"] [data-testid="element-container"]:has(.sidebar-header) {
         position: sticky !important;
@@ -122,34 +133,6 @@ st.markdown("""
 
     div[data-testid="stVerticalBlock"] > div {
         gap: 0.25rem !important;
-    }
-
-    /* Esconde o span âncora do botão de upload */
-    [data-testid="element-container"]:has(#_ul_anchor_) {
-        height: 0 !important;
-        overflow: hidden !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    /* Posiciona o botão toggle dentro do campo de chat (sidebar expandida ≈ 21rem) */
-    [data-testid="element-container"]:has(#_ul_anchor_) + [data-testid="element-container"] {
-        position: fixed !important;
-        bottom: 10px !important;
-        left: calc(21rem + 12px) !important;
-        z-index: 999 !important;
-        width: 36px !important;
-        height: 36px !important;
-        padding: 0 !important;
-    }
-    [data-testid="element-container"]:has(#_ul_anchor_) + [data-testid="element-container"] button {
-        border-radius: 50% !important;
-        width: 36px !important;
-        height: 36px !important;
-        min-height: 0 !important;
-        padding: 0 !important;
-        font-size: 1rem !important;
-        line-height: 1 !important;
     }
 
     /* ===== Contador de tokens ===== */
@@ -251,11 +234,6 @@ st.markdown("""
         opacity: 1 !important;
         visibility: visible !important;
     }
-
-    /* Abre espaço no textarea para o botão não sobrepor o texto */
-    [data-testid="stChatInputContainer"] textarea {
-        padding-left: 3rem !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -264,7 +242,7 @@ st.markdown("""
 def _dialog_como_usar():
     st.markdown("""
 **1. Configure a IA**
-Abra "Configuração" na barra lateral, escolha o provedor e insira sua chave de API.
+Abra "Configuração" na barra lateral, escolha o provedor, insira sua chave de API e selecione o modelo.
 Sua chave não é armazenada — fica apenas nesta sessão.
 
 **2. Siga o pipeline em ordem**
@@ -273,14 +251,14 @@ Complete cada etapa antes de avançar para a próxima.
 
 **3. Converse com a IA**
 Digite sua mensagem no campo de chat.
-Você também pode anexar arquivos `.txt`, `.md` ou `.docx` como contexto.
+Para anexar arquivos `.txt`, `.md` ou `.docx` como contexto, use o clipe 📎 dentro do próprio campo de mensagem.
 
 **4. Baixe os arquivos gerados**
 Ao final de cada etapa, exporte o resultado em Markdown, Word ou PDF.
 
 **5. Monitore o uso de contexto**
 A barra na sidebar mostra quantos tokens foram consumidos na etapa atual.
-A aba do navegador exibe o total acumulado de tokens da sessão.
+O total acumulado da sessão aparece ao final da barra lateral.
     """)
 
 
@@ -379,6 +357,19 @@ def _dialog_configuracao():
     )
     st.session_state.api_key = st.session_state.get(f"_api_key_{provider_id}", "")
 
+    # 3. Modelo
+    modelos = prov["models"]
+    modelo_atual = st.session_state.get("selected_model", prov["default_model"])
+    idx_modelo = modelos.index(modelo_atual) if modelo_atual in modelos else 0
+    st.selectbox(
+        "Modelo",
+        options=modelos,
+        index=idx_modelo,
+        key="_model_select",
+        on_change=_on_model_change,
+        help="O modelo padrão do provedor é recomendado para a maioria dos casos.",
+    )
+
 
 # Painel lateral
 with st.sidebar:
@@ -387,7 +378,7 @@ with st.sidebar:
     <div class="sh-icon">📋</div>
     <div class="sh-brand">FiatLux</div>
     <div class="sh-tagline">Projeto de Pesquisa</div>
-    <div class="sh-version">v1.1.0 &middot; jun 2026</div>
+    <div class="sh-version">v1.2.0 &middot; jun 2026</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -401,17 +392,6 @@ with st.sidebar:
     st.markdown("---")
     render_pipeline_nav()
 
-
-_total_tokens = sum(
-    v["input"] + v["output"]
-    for v in st.session_state.get("tokens_por_skill", {}).values()
-)
-_tab_title = (
-    f"FiatLux ({_total_tokens:,} tokens)"
-    if _total_tokens > 0
-    else "FiatLux - Projeto de Pesquisa"
-)
-st.markdown(f"<script>document.title='{_tab_title}'</script>", unsafe_allow_html=True)
 
 skill_atual = st.session_state.skill_atual
 render_chat(skill_atual)

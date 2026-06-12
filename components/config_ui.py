@@ -14,6 +14,11 @@ def _on_model_change():
     st.session_state["selected_model"] = st.session_state["_model_select"]
 
 
+def _on_key_change():
+    # Enter no campo da chave dispara o teste automático na tela de entrada
+    st.session_state["_auto_conectar"] = True
+
+
 def _detectar_provedor(chave: str):
     """Retorna (provider_id, ambiguo). ambiguo=True quando sk- pode ser OpenAI ou DeepSeek."""
     if not chave:
@@ -95,6 +100,7 @@ def render_config_form():
         value=api_key,
         placeholder=prov["key_placeholder"],
         key=f"_api_key_{provider_id}",
+        on_change=_on_key_change,
         help="Sua chave permanece apenas nesta sessão e não é armazenada.",
     )
     st.session_state.api_key = st.session_state.get(f"_api_key_{provider_id}", "")

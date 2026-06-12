@@ -29,6 +29,22 @@ def rodape_aceite() -> str:
     )
 
 
+def _conectar(chave: str):
+    """Executa o teste de conexão e registra a validação na sessão."""
+    from utils.llm_provider import testar_conexao, AuthenticationError
+    provider_id = st.session_state.get("selected_provider")
+    model = st.session_state.get("selected_model")
+    try:
+        with st.spinner("Testando a conexão com o provedor..."):
+            testar_conexao(provider_id, model, chave)
+        st.session_state.api_validada = (provider_id, model, chave)
+        st.rerun()
+    except AuthenticationError:
+        st.error("Chave inválida ou não autorizada pelo provedor. Confira e tente novamente.", icon="❌")
+    except Exception as e:
+        st.error(f"Falha na conexão: {e}", icon="❌")
+
+
 _TERMO = """
 1. **Estado da ferramenta** — Aceito utilizar a ferramenta no estado em que se
 encontra, sem garantias de qualquer natureza quanto a disponibilidade,
@@ -179,26 +195,17 @@ automaticamente.
 """)
             with st.container(border=True):
                 render_config_form()
+                auto = st.session_state.pop("_auto_conectar", False)
 
                 if api_conectada():
                     st.success("Conectado — API validada e pronta para uso.", icon="🔌")
-                elif st.button("🔌 Conectar", type="primary", use_container_width=True):
+                else:
                     chave = st.session_state.get("api_key", "")
-                    if not chave:
+                    clicou = st.button("🔌 Conectar", type="primary", use_container_width=True)
+                    if clicou and not chave:
                         st.warning("Insira a chave de API antes de conectar.", icon="⚠️")
-                    else:
-                        from utils.llm_provider import testar_conexao, AuthenticationError
-                        provider_id = st.session_state.get("selected_provider")
-                        model = st.session_state.get("selected_model")
-                        try:
-                            with st.spinner("Testando a conexão com o provedor..."):
-                                testar_conexao(provider_id, model, chave)
-                            st.session_state.api_validada = (provider_id, model, chave)
-                            st.rerun()
-                        except AuthenticationError:
-                            st.error("Chave inválida ou não autorizada pelo provedor. Confira e tente novamente.", icon="❌")
-                        except Exception as e:
-                            st.error(f"Falha na conexão: {e}", icon="❌")
+                    elif clicou or (auto and chave):
+                        _conectar(chave)
 
     with st.container(key="secao_termo"):
         st.markdown("### Termo de concordância")

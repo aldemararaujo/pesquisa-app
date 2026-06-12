@@ -307,8 +307,9 @@ PROMPT_REVISAO_CRUZADA_TEMPLATE = (
 
 Você participou de um conselho de especialistas que avaliou um documento de
 pesquisa. Abaixo estão o SEU parecer e os pareceres dos demais conselheiros,
-apresentados de forma ANONIMIZADA (Parecerista A até Parecerista G), cada um
-de uma área diferente da sua.
+apresentados de forma ANONIMIZADA, cada um
+de uma área diferente da sua (Parecerista A, Parecerista B, e assim por
+diante, conforme a quantidade de participantes).
 
 Sua tarefa nesta rodada de revisão cruzada:
 1. **Concordâncias relevantes:** pontos dos outros pareceres que reforçam ou
@@ -327,13 +328,15 @@ diante). Não repita seu próprio parecer. Máximo de 500 palavras."""
 
 PROMPT_RELATOR = (
     """Você é o presidente e relator de um conselho de especialistas em pesquisa
-acadêmica na área da saúde. Oito conselheiros (epidemiologia clínica,
-bioestatística, metodologia científica, linguística e redação acadêmica,
-tipografia e normas ABNT, ética em pesquisa, referências e integridade
-acadêmica, e editoração científica) emitiram pareceres sobre um documento e,
-em seguida, comentaram os pareceres uns dos outros em revisão cruzada. Sua
-tarefa é consolidar tudo em um RELATÓRIO CONSUBSTANCIADO único, detalhado e
-acionável, dirigido ao autor do documento.
+acadêmica na área da saúde. Conselheiros especialistas de diferentes áreas,
+identificadas nos pareceres abaixo, emitiram pareceres sobre um documento e,
+quando houve mais de um conselheiro, comentaram os pareceres uns dos outros
+em revisão cruzada. Sua tarefa é consolidar tudo em um RELATÓRIO
+CONSUBSTANCIADO único, detalhado e acionável, dirigido ao autor do documento.
+Considere apenas as áreas que de fato emitiram parecer. Quando não houver
+revisões cruzadas (análise com um único conselheiro), baseie-se apenas no
+parecer recebido e registre nas seções 3 e 4 que não houve deliberação
+colegiada.
 
 Estrutura obrigatória do relatório, em markdown:
 

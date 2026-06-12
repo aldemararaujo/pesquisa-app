@@ -4,7 +4,7 @@ from datetime import date
 
 import streamlit as st
 
-from council.personas import PERSONAS
+from council.personas import PERSONAS, PERSONA_IDS
 from council.engine import (
     etapa_identificacao,
     etapa_parecer,
@@ -20,6 +20,13 @@ from utils.llm_provider import AuthenticationError as LLMAuthError
 from components.file_download import render_download_buttons
 
 _RELATORIO_ID = "conselho-relatorio"
+
+
+def _personas_selecionadas(conselho: dict) -> list[dict]:
+    """Personas participantes da análise, na ordem de PERSONAS. Análises
+    antigas na sessão (sem a chave) consideram todos os especialistas."""
+    ids = conselho.get("selecionados") or PERSONA_IDS
+    return [p for p in PERSONAS if p["id"] in ids]
 
 
 def render_council():
@@ -69,16 +76,25 @@ def render_council():
 
 
 def _render_upload(conselho: dict):
-    st.markdown("#### Áreas do conselho")
+    st.markdown("#### Especialistas do conselho")
+    st.caption(
+        "Escolha quais especialistas participam da análise. "
+        "Por padrão, todos participam."
+    )
     colunas = st.columns(4)
+    selecionados = []
     for i, persona in enumerate(PERSONAS):
         with colunas[i % 4]:
-            st.markdown(
-                f"<div style='border:1px solid #ddd;border-radius:8px;"
-                f"padding:0.6rem;margin-bottom:0.6rem;text-align:center;"
-                f"font-size:0.85rem'><b>{persona['nome_curto']}</b></div>",
-                unsafe_allow_html=True,
+            marcado = st.checkbox(
+                persona["nome_curto"],
+                value=True,
+                key=f"_sel_{persona['id']}",
             )
+            if marcado:
+                selecionados.append(persona["id"])
+
+    if not selecionados:
+        st.warning("Selecione ao menos um especialista para a análise.")
 
     uploaded_file = st.file_uploader(
         "Documento para análise (.pdf  .docx  .md  .txt)",
@@ -93,7 +109,7 @@ def _render_upload(conselho: dict):
     iniciar = st.button(
         "▶ Iniciar análise",
         type="primary",
-        disabled=not (uploaded_file and api_key),
+        disabled=not (uploaded_file and api_key and selecionados),
         use_container_width=True,
     )
 
@@ -113,6 +129,7 @@ def _render_upload(conselho: dict):
             "doc_texto": texto,
             "doc_truncado": truncado,
             "aviso_extracao": aviso,
+            "selecionados": selecionados,
             "identificacao": None,
             "tipo_documento": None,
             "pareceres": {},
@@ -127,7 +144,12 @@ def _render_upload(conselho: dict):
 def _render_info_documento(conselho: dict):
     tipo = conselho.get("tipo_documento")
     tipo_label = TIPOS_LABEL.get(tipo, "ainda não identificado")
-    st.info(f"📄 **{conselho.get('doc_nome', '')}** · Tipo: {tipo_label}")
+    n_areas = len(_personas_selecionadas(conselho))
+    plural = "especialistas" if n_areas > 1 else "especialista"
+    st.info(
+        f"📄 **{conselho.get('doc_nome', '')}** · Tipo: {tipo_label} · "
+        f"Conselho com {n_areas} {plural}"
+    )
 
     if conselho.get("aviso_extracao"):
         st.warning(conselho["aviso_extracao"])
@@ -143,6 +165,9 @@ def _executar_analise(conselho: dict):
     pareceres = conselho.setdefault("pareceres", {})
     revisoes = conselho.setdefault("revisoes", {})
     doc = conselho["doc_texto"]
+    participantes = _personas_selecionadas(conselho)
+    ids_participantes = [p["id"] for p in participantes]
+    n = len(participantes)
 
     try:
         # Etapa 0: identificação
@@ -163,10 +188,10 @@ def _executar_analise(conselho: dict):
         with st.status("Etapa 2 de 4 · Pareceres dos especialistas...", expanded=True) as status:
             progresso = st.empty()
             placeholder = st.empty()
-            for i, persona in enumerate(PERSONAS, start=1):
+            for i, persona in enumerate(participantes, start=1):
                 if pareceres.get(persona["id"]):
                     continue
-                progresso.markdown(f"**Parecer {i} de {len(PERSONAS)}: {persona['nome_curto']}**")
+                progresso.markdown(f"**Parecer {i} de {n}: {persona['nome_curto']}**")
                 resultado = etapa_parecer(
                     persona, doc, identificacao, tipo,
                     on_chunk=lambda t: placeholder.markdown(t + "▌"),
@@ -176,22 +201,30 @@ def _executar_analise(conselho: dict):
             progresso.empty()
             status.update(label="Etapa 2 de 4 · Pareceres concluídos ✓", state="complete", expanded=False)
 
-        # Etapa 2: revisão cruzada
-        with st.status("Etapa 3 de 4 · Revisão cruzada anônima...", expanded=True) as status:
-            progresso = st.empty()
-            placeholder = st.empty()
-            for i, persona in enumerate(PERSONAS, start=1):
-                if revisoes.get(persona["id"]):
-                    continue
-                progresso.markdown(f"**Revisão {i} de {len(PERSONAS)}: {persona['nome_curto']}**")
-                resultado = etapa_revisao(
-                    persona, identificacao, pareceres,
-                    on_chunk=lambda t: placeholder.markdown(t + "▌"),
-                )
-                revisoes[persona["id"]] = resultado
-                placeholder.empty()
-            progresso.empty()
-            status.update(label="Etapa 3 de 4 · Revisão cruzada concluída ✓", state="complete", expanded=False)
+        # Etapa 2: revisão cruzada (dispensada quando há um único especialista)
+        if n < 2:
+            with st.status(
+                "Etapa 3 de 4 · Revisão cruzada dispensada: apenas um especialista",
+                expanded=False,
+            ) as status:
+                status.update(state="complete")
+        else:
+            with st.status("Etapa 3 de 4 · Revisão cruzada anônima...", expanded=True) as status:
+                progresso = st.empty()
+                placeholder = st.empty()
+                for i, persona in enumerate(participantes, start=1):
+                    if revisoes.get(persona["id"]):
+                        continue
+                    progresso.markdown(f"**Revisão {i} de {n}: {persona['nome_curto']}**")
+                    resultado = etapa_revisao(
+                        persona, identificacao, pareceres,
+                        ids_selecionados=ids_participantes,
+                        on_chunk=lambda t: placeholder.markdown(t + "▌"),
+                    )
+                    revisoes[persona["id"]] = resultado
+                    placeholder.empty()
+                progresso.empty()
+                status.update(label="Etapa 3 de 4 · Revisão cruzada concluída ✓", state="complete", expanded=False)
 
         # Etapa 3: síntese do relator
         with st.status("Etapa 4 de 4 · Síntese do relator...", expanded=True) as status:
@@ -230,15 +263,20 @@ def _executar_analise(conselho: dict):
 
 
 def _render_resultados(conselho: dict):
+    participantes = _personas_selecionadas(conselho)
     st.markdown("### Pareceres dos especialistas")
-    abas = st.tabs([p["nome_curto"] for p in PERSONAS])
-    for aba, persona in zip(abas, PERSONAS):
+    abas = st.tabs([p["nome_curto"] for p in participantes])
+    for aba, persona in zip(abas, participantes):
         with aba:
-            st.markdown(conselho["pareceres"].get(persona["id"], "_Parecer não disponível._"))
+            parecer = conselho["pareceres"].get(persona["id"])
+            st.markdown(parecer or "_Parecer não disponível._")
             revisao = conselho["revisoes"].get(persona["id"])
             if revisao:
                 with st.expander("Revisão cruzada deste especialista"):
                     st.markdown(revisao)
+            if parecer:
+                st.caption("Baixar este parecer:")
+                render_download_buttons(f"conselho-{persona['id']}", parecer)
 
     st.markdown("---")
     st.markdown("### Relatório final do conselho")
@@ -261,7 +299,7 @@ def _render_resultados_parciais(conselho: dict):
     if conselho.get("identificacao"):
         with st.expander("Identificação do documento"):
             st.markdown(conselho["identificacao"])
-    for persona in PERSONAS:
+    for persona in _personas_selecionadas(conselho):
         parecer = pareceres.get(persona["id"])
         if parecer:
             with st.expander(f"Parecer: {persona['nome_curto']}"):
@@ -271,5 +309,5 @@ def _render_resultados_parciais(conselho: dict):
 def _limpar_conselho():
     st.session_state.conselho = {}
     for key in list(st.session_state.keys()):
-        if key.startswith(f"_dl_{_RELATORIO_ID}_"):
+        if key.startswith("_dl_conselho-"):
             del st.session_state[key]

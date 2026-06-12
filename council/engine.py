@@ -121,10 +121,16 @@ def parse_tipo_documento(identificacao: str) -> str:
     return "projeto"
 
 
-def rotulos_anonimos(persona_id: str) -> dict[str, str]:
-    """Mapeia os ids das demais personas para rótulos anônimos, em ordem
-    determinística (ordem de PERSONAS, excluindo a própria)."""
-    outros = [p["id"] for p in PERSONAS if p["id"] != persona_id]
+def rotulos_anonimos(persona_id: str, ids_selecionados: list[str] | None = None) -> dict[str, str]:
+    """Mapeia os ids das demais personas participantes para rótulos anônimos,
+    em ordem determinística (ordem de PERSONAS, excluindo a própria).
+    ids_selecionados restringe aos especialistas escolhidos; None inclui todos."""
+    if ids_selecionados is None:
+        ids_selecionados = [p["id"] for p in PERSONAS]
+    outros = [
+        p["id"] for p in PERSONAS
+        if p["id"] in ids_selecionados and p["id"] != persona_id
+    ]
     return dict(zip(outros, _ROTULOS))
 
 
@@ -150,14 +156,16 @@ def etapa_parecer(persona: dict, doc: str, identificacao: str, tipo: str,
 
 
 def etapa_revisao(persona: dict, identificacao: str,
-                  pareceres: dict[str, str], on_chunk=None) -> str:
+                  pareceres: dict[str, str],
+                  ids_selecionados: list[str] | None = None,
+                  on_chunk=None) -> str:
     identidade = (
         f"Você é o {persona['nome']} de um conselho de avaliação de documentos "
         f"de pesquisa acadêmica."
     )
     system = PROMPT_REVISAO_CRUZADA_TEMPLATE.format(identidade_curta=identidade)
 
-    rotulos = rotulos_anonimos(persona["id"])
+    rotulos = rotulos_anonimos(persona["id"], ids_selecionados)
     blocos_outros = []
     for outro_id, rotulo in rotulos.items():
         parecer = pareceres.get(outro_id, "")
@@ -181,8 +189,11 @@ def etapa_sintese(identificacao: str, tipo: str, pareceres: dict[str, str],
     blocos_revisoes = []
     for p in PERSONAS:
         pid = p["id"]
-        blocos_pareceres.append(f"### Parecer da área: {p['nome_curto']}\n\n{pareceres.get(pid, '')}")
-        blocos_revisoes.append(f"### Revisão cruzada de {p['nome_curto']}\n\n{revisoes.get(pid, '')}")
+        if pid not in pareceres:
+            continue
+        blocos_pareceres.append(f"### Parecer da área: {p['nome_curto']}\n\n{pareceres[pid]}")
+        if revisoes.get(pid):
+            blocos_revisoes.append(f"### Revisão cruzada de {p['nome_curto']}\n\n{revisoes[pid]}")
 
     user = (
         f"Data da análise: {data_analise}\n"
@@ -190,7 +201,15 @@ def etapa_sintese(identificacao: str, tipo: str, pareceres: dict[str, str],
         f"IDENTIFICAÇÃO DO DOCUMENTO:\n{identificacao}\n\n"
         f"=== PARECERES DOS CONSELHEIROS ===\n\n"
         + "\n\n---\n\n".join(blocos_pareceres)
-        + "\n\n=== REVISÕES CRUZADAS ===\n\n"
-        + "\n\n---\n\n".join(blocos_revisoes)
     )
+    if blocos_revisoes:
+        user += (
+            "\n\n=== REVISÕES CRUZADAS ===\n\n"
+            + "\n\n---\n\n".join(blocos_revisoes)
+        )
+    else:
+        user += (
+            "\n\nObservação: a análise contou com um único conselheiro, "
+            "portanto não houve rodada de revisão cruzada."
+        )
     return _chamar(PROMPT_RELATOR, user, on_chunk)

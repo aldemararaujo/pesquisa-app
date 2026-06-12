@@ -146,9 +146,11 @@ A chave permanece apenas nesta sessão e **não é armazenada**.
 
 **Como fazer:**
 
-1. Obtenha a chave no site do provedor: console.anthropic.com (Anthropic),
-platform.openai.com (OpenAI), aistudio.google.com (Google Gemini) ou
-platform.deepseek.com (DeepSeek).
+1. Obtenha a chave no site do provedor:
+[console.anthropic.com](https://console.anthropic.com) (Anthropic),
+[platform.openai.com](https://platform.openai.com) (OpenAI),
+[aistudio.google.com](https://aistudio.google.com) (Google Gemini) ou
+[platform.deepseek.com](https://platform.deepseek.com) (DeepSeek).
 2. Cole a chave no campo destacado abaixo — o provedor é detectado
 automaticamente.
 3. Clique em **Conectar** para validar a chave.

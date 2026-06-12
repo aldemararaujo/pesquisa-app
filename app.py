@@ -4,6 +4,7 @@ from components.pipeline_nav import render_pipeline_nav
 from components.chat_ui import render_chat
 from components.council_ui import render_council
 from components.welcome_ui import render_welcome
+from components.footer import render_footer
 from config import PROVIDERS, DEFAULT_PROVIDER
 
 st.set_page_config(
@@ -417,14 +418,11 @@ with st.sidebar:
     st.markdown("---")
     render_pipeline_nav()
 
-    st.markdown("---")
-    if st.button("📄 Apresentação e termo de uso", use_container_width=True):
-        st.session_state.mostrar_apresentacao = True
-        st.rerun()
-
 
 if st.session_state.get("modo_app") == "conselho":
     render_council()
 else:
     skill_atual = st.session_state.skill_atual
     render_chat(skill_atual)
+
+render_footer()

@@ -1,6 +1,8 @@
 import streamlit as st
 from datetime import datetime
 
+from components.footer import render_footer
+
 _MESES = [
     "janeiro", "fevereiro", "março", "abril", "maio", "junho",
     "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
@@ -144,14 +146,15 @@ existem para ampliar o acesso a esses cuidados, não para dispensá-los.
         if st.button("← Voltar à ferramenta", type="primary"):
             st.session_state.mostrar_apresentacao = False
             st.rerun()
-        return
+    else:
+        concorda = st.checkbox("Li e concordo com o termo de uso acima.", key="_termo_checkbox")
+        if st.button("Começar", type="primary"):
+            if concorda:
+                st.session_state.termo_aceito = True
+                st.session_state.termo_aceite_em = datetime.now()
+                st.session_state.mostrar_apresentacao = False
+                st.rerun()
+            else:
+                st.warning("É necessário marcar a caixa de concordância para iniciar.", icon="⚠️")
 
-    concorda = st.checkbox("Li e concordo com o termo de uso acima.", key="_termo_checkbox")
-    if st.button("Começar", type="primary"):
-        if concorda:
-            st.session_state.termo_aceito = True
-            st.session_state.termo_aceite_em = datetime.now()
-            st.session_state.mostrar_apresentacao = False
-            st.rerun()
-        else:
-            st.warning("É necessário marcar a caixa de concordância para iniciar.", icon="⚠️")
+    render_footer()

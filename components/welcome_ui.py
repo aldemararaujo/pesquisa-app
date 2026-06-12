@@ -83,6 +83,28 @@ def render_welcome():
         font-size: 1.05rem;
         margin-bottom: 0.4rem;
     }
+
+    /* Seção da API: azul institucional suave (área de configuração) */
+    div.st-key-secao_api {
+        background: rgba(31, 73, 125, 0.06);
+        border: 1px solid rgba(31, 73, 125, 0.20);
+        border-radius: 12px;
+        padding: 1rem 1.4rem 1.2rem;
+        margin-top: 1rem;
+    }
+    div.st-key-secao_api [data-testid="stVerticalBlockBorderWrapper"] {
+        background: #FFFFFF;
+        border-radius: 10px;
+    }
+
+    /* Seção do termo: âmbar suave (atenção e leitura cuidadosa) */
+    div.st-key-secao_termo {
+        background: rgba(184, 110, 0, 0.06);
+        border: 1px solid rgba(184, 110, 0, 0.28);
+        border-radius: 12px;
+        padding: 1rem 1.4rem 1.2rem;
+        margin-top: 1rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -137,9 +159,9 @@ existem para ampliar o acesso a esses cuidados, não para dispensá-los.
     ja_aceito = st.session_state.get("termo_aceito", False)
 
     if not ja_aceito:
-        st.markdown("---")
-        st.markdown("## Configure sua chave de API")
-        st.markdown("""
+        with st.container(key="secao_api"):
+            st.markdown("## Configure sua chave de API")
+            st.markdown("""
 O FiatLux funciona com a **sua própria chave de API** de um provedor de
 inteligência artificial — Anthropic, OpenAI, Google Gemini ou DeepSeek.
 A chave permanece apenas nesta sessão e **não é armazenada**.
@@ -155,51 +177,51 @@ A chave permanece apenas nesta sessão e **não é armazenada**.
 automaticamente.
 3. Clique em **Conectar** para validar a chave.
 """)
-        with st.container(border=True):
-            render_config_form()
+            with st.container(border=True):
+                render_config_form()
 
-            if api_conectada():
-                st.success("Conectado — API validada e pronta para uso.", icon="🔌")
-            elif st.button("🔌 Conectar", type="primary", use_container_width=True):
-                chave = st.session_state.get("api_key", "")
-                if not chave:
-                    st.warning("Insira a chave de API antes de conectar.", icon="⚠️")
-                else:
-                    from utils.llm_provider import testar_conexao, AuthenticationError
-                    provider_id = st.session_state.get("selected_provider")
-                    model = st.session_state.get("selected_model")
-                    try:
-                        with st.spinner("Testando a conexão com o provedor..."):
-                            testar_conexao(provider_id, model, chave)
-                        st.session_state.api_validada = (provider_id, model, chave)
-                        st.rerun()
-                    except AuthenticationError:
-                        st.error("Chave inválida ou não autorizada pelo provedor. Confira e tente novamente.", icon="❌")
-                    except Exception as e:
-                        st.error(f"Falha na conexão: {e}", icon="❌")
+                if api_conectada():
+                    st.success("Conectado — API validada e pronta para uso.", icon="🔌")
+                elif st.button("🔌 Conectar", type="primary", use_container_width=True):
+                    chave = st.session_state.get("api_key", "")
+                    if not chave:
+                        st.warning("Insira a chave de API antes de conectar.", icon="⚠️")
+                    else:
+                        from utils.llm_provider import testar_conexao, AuthenticationError
+                        provider_id = st.session_state.get("selected_provider")
+                        model = st.session_state.get("selected_model")
+                        try:
+                            with st.spinner("Testando a conexão com o provedor..."):
+                                testar_conexao(provider_id, model, chave)
+                            st.session_state.api_validada = (provider_id, model, chave)
+                            st.rerun()
+                        except AuthenticationError:
+                            st.error("Chave inválida ou não autorizada pelo provedor. Confira e tente novamente.", icon="❌")
+                        except Exception as e:
+                            st.error(f"Falha na conexão: {e}", icon="❌")
 
-    st.markdown("---")
-    st.markdown("### Termo de concordância")
-    st.markdown(_TERMO)
+    with st.container(key="secao_termo"):
+        st.markdown("### Termo de concordância")
+        st.markdown(_TERMO)
 
-    if ja_aceito:
-        aceite = st.session_state.get("termo_aceite_em")
-        if aceite:
-            st.success(f"Termo aceito em {_data_extensa(aceite)}.", icon="✅")
-        if st.button("← Voltar à ferramenta", type="primary"):
-            st.session_state.mostrar_apresentacao = False
-            st.rerun()
-    else:
-        concorda = st.checkbox("Li e concordo com o termo de uso acima.", key="_termo_checkbox")
-        if st.button("Começar", type="primary"):
-            if not api_conectada():
-                st.warning("Conecte a API antes de iniciar.", icon="⚠️")
-            elif not concorda:
-                st.warning("É necessário marcar a caixa de concordância para iniciar.", icon="⚠️")
-            else:
-                st.session_state.termo_aceito = True
-                st.session_state.termo_aceite_em = datetime.now()
+        if ja_aceito:
+            aceite = st.session_state.get("termo_aceite_em")
+            if aceite:
+                st.success(f"Termo aceito em {_data_extensa(aceite)}.", icon="✅")
+            if st.button("← Voltar à ferramenta", type="primary"):
                 st.session_state.mostrar_apresentacao = False
                 st.rerun()
+        else:
+            concorda = st.checkbox("Li e concordo com o termo de uso acima.", key="_termo_checkbox")
+            if st.button("Começar", type="primary"):
+                if not api_conectada():
+                    st.warning("Conecte a API antes de iniciar.", icon="⚠️")
+                elif not concorda:
+                    st.warning("É necessário marcar a caixa de concordância para iniciar.", icon="⚠️")
+                else:
+                    st.session_state.termo_aceito = True
+                    st.session_state.termo_aceite_em = datetime.now()
+                    st.session_state.mostrar_apresentacao = False
+                    st.rerun()
 
     render_footer()

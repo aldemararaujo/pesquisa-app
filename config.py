@@ -1,3 +1,5 @@
+APP_VERSION = "v1.3.0 · 12 jun 2026"
+
 CLAUDE_MODEL = "claude-sonnet-4-6"
 
 PROVIDERS = {

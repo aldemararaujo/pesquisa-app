@@ -6,7 +6,7 @@ from components.council_ui import render_council
 from components.welcome_ui import render_welcome
 from components.footer import render_footer
 from components.config_ui import render_config_form
-from config import DEFAULT_PROVIDER
+from config import DEFAULT_PROVIDER, APP_VERSION
 
 st.set_page_config(
     page_title="FiatLux - Projeto de Pesquisa",
@@ -283,12 +283,12 @@ def _dialog_configuracao():
 
 # Painel lateral
 with st.sidebar:
-    st.markdown("""
+    st.markdown(f"""
 <div class="sidebar-header">
     <div class="sh-icon">📋</div>
     <div class="sh-brand">FiatLux</div>
     <div class="sh-tagline">Projeto de Pesquisa</div>
-    <div class="sh-version">v1.3.0 &middot; jun 2026</div>
+    <div class="sh-version">{APP_VERSION}</div>
 </div>
 """, unsafe_allow_html=True)
 

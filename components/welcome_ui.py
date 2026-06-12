@@ -3,6 +3,7 @@ from datetime import datetime
 
 from components.footer import render_footer
 from components.config_ui import render_config_form, api_conectada
+from config import APP_VERSION
 
 _MESES = [
     "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -60,14 +61,13 @@ def render_welcome():
         line-height: 1.2;
         display: block;
     }
-    .wh-tagline {
-        font-size: 0.85rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        opacity: 0.8;
+    .wh-version {
+        font-size: 0.78rem;
+        letter-spacing: 0.1em;
+        opacity: 0.65;
         font-family: 'Helvetica Neue', Arial, sans-serif;
-        font-weight: 700;
-        margin-top: 0.2rem;
+        font-weight: 400;
+        margin-top: 0.25rem;
         display: block;
     }
     .welcome-card {
@@ -108,11 +108,11 @@ def render_welcome():
 </style>
 """, unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown(f"""
 <div class="welcome-header">
     <span class="wh-icon">📋</span>
     <span class="wh-brand">FiatLux</span>
-    <span class="wh-tagline">Projeto de Pesquisa</span>
+    <span class="wh-version">{APP_VERSION}</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -135,7 +135,7 @@ def render_welcome():
     with col_saul:
         st.markdown("""
 <div class="welcome-card">
-    <div class="wc-titulo">🧭 SAUL — Trilha da Pesquisa</div>
+    <div class="wc-titulo">🧭 SAUL — Trilha do Projeto de Pesquisa</div>
     <p>Conduz a construção de um projeto de pesquisa em 14 etapas guiadas, do
     mapeamento do tema à compilação final do documento. Cada etapa gera arquivos
     para download em Markdown, Word e PDF.</p>

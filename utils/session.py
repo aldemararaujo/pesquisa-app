@@ -14,7 +14,7 @@ def init_session():
         "api_key": "",
         "selected_provider": DEFAULT_PROVIDER,
         "selected_model": PROVIDERS[DEFAULT_PROVIDER]["default_model"],
-        "modo_app": "pipeline",
+        "modo_app": "conselho",
         "conselho": {},
         "termo_aceito": False,
         "termo_aceite_em": None,

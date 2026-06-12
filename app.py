@@ -302,7 +302,7 @@ with st.sidebar:
     st.markdown("---")
 
     _conselho_ativo = st.session_state.get("modo_app") == "conselho"
-    _conselho_label = "🏛️ Conselho de Especialistas"
+    _conselho_label = "🏛️ Conselho de Especialistas (EMIL)"
     if st.button(
         _conselho_label,
         use_container_width=True,

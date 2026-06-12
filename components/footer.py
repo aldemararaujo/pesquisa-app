@@ -14,9 +14,12 @@ def render_footer():
         padding-top: 0.6rem;
     }
     .app-footer .af-copy { font-weight: 700; }
-    div.st-key-footer_termo_btn {
-        display: flex;
-        justify-content: center;
+    div.st-key-footer_termo_btn,
+    div.st-key-footer_termo_btn > div,
+    div.st-key-footer_termo_btn [data-testid="stButton"] {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
     }
     div.st-key-footer_termo_btn button {
         font-size: 0.74rem !important;

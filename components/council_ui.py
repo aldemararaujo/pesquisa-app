@@ -14,6 +14,7 @@ from council.engine import (
     truncar_documento,
     TIPOS_LABEL,
 )
+from council.engine import eh_rate_limit
 from utils.doc_extract import extrair_texto
 from utils.llm_provider import AuthenticationError as LLMAuthError
 from components.file_download import render_download_buttons
@@ -214,7 +215,17 @@ def _executar_analise(conselho: dict):
         st.rerun()
     except Exception as e:
         conselho["executando"] = False
-        conselho["erro"] = f"{e}"
+        if eh_rate_limit(e):
+            conselho["erro"] = (
+                "o limite de tokens por minuto da sua conta no provedor foi "
+                "atingido repetidamente, mesmo após esperas automáticas. "
+                "Aguarde alguns minutos e clique em Continuar análise: o "
+                "progresso já feito está preservado. Se o erro persistir, o "
+                "documento pode ser grande demais para o limite do seu plano: "
+                "use um provedor com limite maior ou aumente o nível da conta."
+            )
+        else:
+            conselho["erro"] = f"{e}"
         st.rerun()
 
 

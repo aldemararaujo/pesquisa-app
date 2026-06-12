@@ -6,6 +6,7 @@ incremental ficam na camada de UI (components.council_ui).
 """
 
 import re
+import time
 from typing import Callable
 
 import streamlit as st
@@ -22,6 +23,12 @@ from council.personas import (
 )
 
 DOC_MAX_FRACAO_CONTEXTO = 0.55
+
+# Limites de tokens por minuto são comuns nos provedores (ex.: Anthropic nível
+# inicial: 30.000 tokens de entrada por minuto). Em erro 429, aguardamos a
+# janela do minuto renovar e tentamos de novo antes de desistir.
+_MAX_TENTATIVAS = 5
+_ESPERA_RATE_LIMIT_S = 65
 
 _ROTULOS = ["Parecerista A", "Parecerista B", "Parecerista C", "Parecerista D",
             "Parecerista E", "Parecerista F", "Parecerista G"]
@@ -51,6 +58,28 @@ def truncar_documento(texto: str, provider_id: str) -> tuple[str, bool]:
     return texto[:corte].rstrip(), True
 
 
+def eh_rate_limit(e: Exception) -> bool:
+    texto = str(e).lower()
+    return (
+        type(e).__name__ == "RateLimitError"
+        or "rate_limit" in texto
+        or "rate limit" in texto
+        or "429" in texto
+    )
+
+
+def _aguardar_rate_limit(tentativa: int):
+    aviso = st.empty()
+    for restante in range(_ESPERA_RATE_LIMIT_S, 0, -1):
+        aviso.caption(
+            f"⏳ Limite de tokens por minuto do provedor atingido "
+            f"(tentativa {tentativa} de {_MAX_TENTATIVAS - 1}). "
+            f"Aguardando {restante}s para continuar automaticamente..."
+        )
+        time.sleep(1)
+    aviso.empty()
+
+
 def _chamar(system: str, user_content: str,
             on_chunk: Callable[[str], None] | None = None) -> str:
     provider_id = st.session_state.get("selected_provider", "anthropic")
@@ -63,12 +92,20 @@ def _chamar(system: str, user_content: str,
     def _on_tokens(input_t: int, output_t: int):
         add_tokens("conselho", input_t, output_t)
 
-    resposta = ""
-    for texto in provider.stream_response(system, messages, model, api_key, on_tokens=_on_tokens):
-        resposta += texto
-        if on_chunk:
-            on_chunk(resposta)
-    return resposta
+    for tentativa in range(1, _MAX_TENTATIVAS + 1):
+        try:
+            resposta = ""
+            for texto in provider.stream_response(system, messages, model, api_key, on_tokens=_on_tokens):
+                resposta += texto
+                if on_chunk:
+                    on_chunk(resposta)
+            return resposta
+        except Exception as e:
+            if eh_rate_limit(e) and tentativa < _MAX_TENTATIVAS:
+                _aguardar_rate_limit(tentativa)
+                continue
+            raise
+    return ""
 
 
 def parse_tipo_documento(identificacao: str) -> str:

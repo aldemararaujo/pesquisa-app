@@ -96,6 +96,21 @@ class GeminiProvider(BaseLLMProvider):
             raise
 
 
+def testar_conexao(provider_id: str, model: str, api_key: str) -> None:
+    """Valida a chave com uma chamada mínima ao provedor.
+
+    Levanta AuthenticationError para chave inválida; outras exceções
+    indicam problema de rede, modelo ou cota."""
+    provider = get_provider(provider_id)
+    for _ in provider.stream_response(
+        system="Responda somente: ok",
+        messages=[{"role": "user", "content": "oi"}],
+        model=model,
+        api_key=api_key,
+    ):
+        break
+
+
 def get_provider(provider_id: str) -> BaseLLMProvider:
     if provider_id == "anthropic":
         return AnthropicProvider()

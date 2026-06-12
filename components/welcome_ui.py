@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime
 
 from components.footer import render_footer
+from components.config_ui import render_config_form, api_conectada
 
 _MESES = [
     "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -133,11 +134,51 @@ substitui orientadores reais, comitês de ética ou a revisão humana — eles
 existem para ampliar o acesso a esses cuidados, não para dispensá-los.
 """)
 
+    ja_aceito = st.session_state.get("termo_aceito", False)
+
+    if not ja_aceito:
+        st.markdown("---")
+        st.markdown("## Configure sua chave de API")
+        st.markdown("""
+O FiatLux funciona com a **sua própria chave de API** de um provedor de
+inteligência artificial — Anthropic, OpenAI, Google Gemini ou DeepSeek.
+A chave permanece apenas nesta sessão e **não é armazenada**.
+
+**Como fazer:**
+
+1. Obtenha a chave no site do provedor: console.anthropic.com (Anthropic),
+platform.openai.com (OpenAI), aistudio.google.com (Google Gemini) ou
+platform.deepseek.com (DeepSeek).
+2. Cole a chave no campo destacado abaixo — o provedor é detectado
+automaticamente.
+3. Clique em **Conectar** para validar a chave.
+""")
+        with st.container(border=True):
+            render_config_form()
+
+            if api_conectada():
+                st.success("Conectado — API validada e pronta para uso.", icon="🔌")
+            elif st.button("🔌 Conectar", type="primary", use_container_width=True):
+                chave = st.session_state.get("api_key", "")
+                if not chave:
+                    st.warning("Insira a chave de API antes de conectar.", icon="⚠️")
+                else:
+                    from utils.llm_provider import testar_conexao, AuthenticationError
+                    provider_id = st.session_state.get("selected_provider")
+                    model = st.session_state.get("selected_model")
+                    try:
+                        with st.spinner("Testando a conexão com o provedor..."):
+                            testar_conexao(provider_id, model, chave)
+                        st.session_state.api_validada = (provider_id, model, chave)
+                        st.rerun()
+                    except AuthenticationError:
+                        st.error("Chave inválida ou não autorizada pelo provedor. Confira e tente novamente.", icon="❌")
+                    except Exception as e:
+                        st.error(f"Falha na conexão: {e}", icon="❌")
+
     st.markdown("---")
     st.markdown("### Termo de concordância")
     st.markdown(_TERMO)
-
-    ja_aceito = st.session_state.get("termo_aceito", False)
 
     if ja_aceito:
         aceite = st.session_state.get("termo_aceite_em")
@@ -149,12 +190,14 @@ existem para ampliar o acesso a esses cuidados, não para dispensá-los.
     else:
         concorda = st.checkbox("Li e concordo com o termo de uso acima.", key="_termo_checkbox")
         if st.button("Começar", type="primary"):
-            if concorda:
+            if not api_conectada():
+                st.warning("Conecte a API antes de iniciar.", icon="⚠️")
+            elif not concorda:
+                st.warning("É necessário marcar a caixa de concordância para iniciar.", icon="⚠️")
+            else:
                 st.session_state.termo_aceito = True
                 st.session_state.termo_aceite_em = datetime.now()
                 st.session_state.mostrar_apresentacao = False
                 st.rerun()
-            else:
-                st.warning("É necessário marcar a caixa de concordância para iniciar.", icon="⚠️")
 
     render_footer()

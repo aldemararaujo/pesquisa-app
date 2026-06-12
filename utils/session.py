@@ -18,6 +18,7 @@ def init_session():
         "conselho": {},
         "termo_aceito": False,
         "termo_aceite_em": None,
+        "api_validada": None,
         "mostrar_apresentacao": False,
     }
     for key, value in defaults.items():

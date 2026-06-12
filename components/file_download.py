@@ -2,11 +2,15 @@ import streamlit as st
 from datetime import date
 from generators.docx_generator import markdown_para_docx
 from generators.pdf_generator import docx_para_pdf
+from components.welcome_ui import rodape_aceite
 
 
 def render_download_buttons(skill_id: str, texto_md: str):
     if not texto_md:
         return
+
+    if skill_id == "compilacao-final":
+        texto_md = texto_md + rodape_aceite()
 
     data_hoje = date.today().strftime("%Y%m%d")
     nome_base = f"{skill_id}_{data_hoje}"

@@ -16,6 +16,9 @@ def init_session():
         "selected_model": PROVIDERS[DEFAULT_PROVIDER]["default_model"],
         "modo_app": "pipeline",
         "conselho": {},
+        "termo_aceito": False,
+        "termo_aceite_em": None,
+        "mostrar_apresentacao": False,
     }
     for key, value in defaults.items():
         if key not in st.session_state:

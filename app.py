@@ -3,6 +3,7 @@ from utils.session import init_session
 from components.pipeline_nav import render_pipeline_nav
 from components.chat_ui import render_chat
 from components.council_ui import render_council
+from components.welcome_ui import render_welcome
 from config import PROVIDERS, DEFAULT_PROVIDER
 
 st.set_page_config(
@@ -18,6 +19,11 @@ init_session()
 _prov_id = st.session_state.get("selected_provider", DEFAULT_PROVIDER)
 if f"_api_key_{_prov_id}" in st.session_state:
     st.session_state.api_key = st.session_state[f"_api_key_{_prov_id}"]
+
+# Tela de entrada obrigatória: apresentação e termo de concordância
+if not st.session_state.termo_aceito or st.session_state.mostrar_apresentacao:
+    render_welcome()
+    st.stop()
 
 st.markdown("""
 <style>
@@ -384,7 +390,7 @@ with st.sidebar:
     <div class="sh-icon">📋</div>
     <div class="sh-brand">FiatLux</div>
     <div class="sh-tagline">Projeto de Pesquisa</div>
-    <div class="sh-version">v1.2.0 &middot; jun 2026</div>
+    <div class="sh-version">v1.3.0 &middot; jun 2026</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -410,6 +416,11 @@ with st.sidebar:
 
     st.markdown("---")
     render_pipeline_nav()
+
+    st.markdown("---")
+    if st.button("📄 Apresentação e termo de uso", use_container_width=True):
+        st.session_state.mostrar_apresentacao = True
+        st.rerun()
 
 
 if st.session_state.get("modo_app") == "conselho":

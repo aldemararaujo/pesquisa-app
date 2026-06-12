@@ -21,6 +21,7 @@ from utils.doc_extract import extrair_texto
 from utils.llm_provider import AuthenticationError as LLMAuthError
 from generators.docx_generator import markdown_para_docx
 from generators.pdf_generator import docx_para_pdf
+from components.welcome_ui import rodape_aceite
 
 _MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
@@ -299,7 +300,8 @@ def _render_downloads(conselho: dict):
     participantes = _personas_selecionadas(conselho)
     data_hoje = date.today().strftime("%Y%m%d")
 
-    documentos = [("relatorio-final", "📑 **Relatório final do conselho**", conselho["relatorio"])]
+    relatorio_com_aceite = conselho["relatorio"] + rodape_aceite()
+    documentos = [("relatorio-final", "📑 **Relatório final do conselho**", relatorio_com_aceite)]
     for p in participantes:
         parecer = conselho["pareceres"].get(p["id"])
         if parecer:

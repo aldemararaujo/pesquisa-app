@@ -20,6 +20,8 @@ def init_session():
         "termo_aceite_em": None,
         "api_validada": None,
         "mostrar_apresentacao": False,
+        "_rolar_topo": False,
+        "saul_expandido": False,
     }
     for key, value in defaults.items():
         if key not in st.session_state:

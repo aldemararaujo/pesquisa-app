@@ -44,4 +44,5 @@ def render_footer():
 
     if st.button("Apresentação e termo de uso", key="footer_termo_btn", type="tertiary"):
         st.session_state.mostrar_apresentacao = True
+        st.session_state._rolar_topo = True
         st.rerun()

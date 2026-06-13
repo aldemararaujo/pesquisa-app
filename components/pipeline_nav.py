@@ -9,13 +9,6 @@ _FASE_ICONES = {
 
 
 def render_pipeline_nav():
-    st.sidebar.markdown(
-        '<p style="font-weight:700;font-size:0.85rem;letter-spacing:0.05em;'
-        'margin:0;padding:0.9rem 0 0.4rem;line-height:1.5">'
-        'SAUL — TRILHA DO PROJETO DE PESQUISA</p>',
-        unsafe_allow_html=True,
-    )
-
     atual = st.session_state.skill_atual
     concluidas = st.session_state.skills_concluidas
     fase_atual = PIPELINE[atual]["fase"]

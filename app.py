@@ -22,6 +22,29 @@ _prov_id = st.session_state.get("selected_provider", DEFAULT_PROVIDER)
 if f"_api_key_{_prov_id}" in st.session_state:
     st.session_state.api_key = st.session_state[f"_api_key_{_prov_id}"]
 
+# Rola tela principal e sidebar para o topo após transições de tela
+if st.session_state.pop("_rolar_topo", False):
+    st.iframe("""
+<script>
+    function rolarTopo() {
+        const doc = window.parent.document;
+        const seletores = [
+            '[data-testid="stAppViewContainer"]',
+            '[data-testid="stMain"]',
+            'section.main',
+            'section[data-testid="stSidebar"] > div',
+        ];
+        for (const sel of seletores) {
+            const el = doc.querySelector(sel);
+            if (el) el.scrollTo({top: 0, behavior: "instant"});
+        }
+        doc.documentElement.scrollTo({top: 0, behavior: "instant"});
+    }
+    setTimeout(rolarTopo, 100);
+    setTimeout(rolarTopo, 350);
+</script>
+""", height=1)
+
 # Tela de entrada obrigatória: apresentação e termo de concordância
 if not st.session_state.termo_aceito or st.session_state.mostrar_apresentacao:
     render_welcome()
@@ -119,17 +142,6 @@ st.markdown("""
         line-height: 1.2;
         display: block;
     }
-    .sh-tagline {
-        font-size: 0.78rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        opacity: 0.8;
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        font-weight: 700;
-        margin-top: 0.15rem;
-        display: block;
-    }
-
     .sh-version {
         font-size: 0.7rem;
         letter-spacing: 0.1em;
@@ -287,7 +299,6 @@ with st.sidebar:
 <div class="sidebar-header">
     <div class="sh-icon">📋</div>
     <div class="sh-brand">FiatLux</div>
-    <div class="sh-tagline">Projeto de Pesquisa</div>
     <div class="sh-version">{APP_VERSION}</div>
 </div>
 """, unsafe_allow_html=True)
@@ -313,7 +324,22 @@ with st.sidebar:
             st.rerun()
 
     st.markdown("---")
-    render_pipeline_nav()
+
+    _trilha_ativa = st.session_state.get("modo_app") == "pipeline"
+    if st.button(
+        "🧭 SAUL — Trilha do Projeto de Pesquisa",
+        use_container_width=True,
+        type="primary" if _trilha_ativa else "secondary",
+    ):
+        if st.session_state.saul_expandido:
+            st.session_state.saul_expandido = False
+        else:
+            st.session_state.saul_expandido = True
+            st.session_state.modo_app = "pipeline"
+        st.rerun()
+
+    if st.session_state.saul_expandido:
+        render_pipeline_nav()
 
 
 if st.session_state.get("modo_app") == "conselho":

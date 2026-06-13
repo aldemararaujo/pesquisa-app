@@ -217,6 +217,7 @@ automaticamente.
                 st.success(f"Termo aceito em {_data_extensa(aceite)}.", icon="✅")
             if st.button("← Voltar à ferramenta", type="primary"):
                 st.session_state.mostrar_apresentacao = False
+                st.session_state._rolar_topo = True
                 st.rerun()
         else:
             concorda = st.checkbox("Li e concordo com o termo de uso acima.", key="_termo_checkbox")
@@ -229,6 +230,7 @@ automaticamente.
                     st.session_state.termo_aceito = True
                     st.session_state.termo_aceite_em = datetime.now()
                     st.session_state.mostrar_apresentacao = False
+                    st.session_state._rolar_topo = True
                     st.rerun()
 
     render_footer()

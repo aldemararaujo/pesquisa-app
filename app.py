@@ -321,6 +321,7 @@ with st.sidebar:
     ):
         if not _conselho_ativo:
             st.session_state.modo_app = "conselho"
+            st.session_state._rolar_topo = True
             st.rerun()
 
     st.markdown("---")
@@ -336,6 +337,7 @@ with st.sidebar:
         else:
             st.session_state.saul_expandido = True
             st.session_state.modo_app = "pipeline"
+            st.session_state._rolar_topo = True
         st.rerun()
 
     if st.session_state.saul_expandido:

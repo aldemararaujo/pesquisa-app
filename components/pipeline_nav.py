@@ -42,11 +42,13 @@ def render_pipeline_nav():
                     if st.button(label, key=f"nav_{i}", use_container_width=True, type="primary"):
                         if st.session_state.get("modo_app") != "pipeline":
                             st.session_state.modo_app = "pipeline"
+                            st.session_state._rolar_topo = True
                             st.rerun()
                 else:
                     if st.button(label, key=f"nav_{i}", use_container_width=True):
                         st.session_state.skill_atual = i
                         st.session_state.modo_app = "pipeline"
+                        st.session_state._rolar_topo = True
                         st.rerun()
 
     st.sidebar.markdown("---")

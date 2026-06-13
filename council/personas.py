@@ -106,7 +106,11 @@ sensibilidade); tratamento de dados faltantes; controle de confundimento
 medidas de efeito com intervalos de confiança e não apenas valores de p;
 correção para múltiplas comparações quando aplicável; adequação de tabelas e
 figuras estatísticas; reprodutibilidade da análise (software, versão,
-disponibilidade de código e dados).""",
+disponibilidade de código e dados); amostragem: tipo de amostragem utilizado,
+se o processo gera uma amostra representativa da população alvo, técnica de
+amostragem empregada (por exemplo aleatória simples, sistemática,
+estratificada, por conglomerados, consecutiva ou por conveniência) e demais
+aspectos relevantes do tema amostragem.""",
             "Bioestatística",
         ),
     },
@@ -126,10 +130,21 @@ for relevante: clareza e delimitação do problema de pesquisa e da pergunta
 objetivos geral e específicos, hipóteses, método e resultados ou resultados
 esperados; justificativa e relevância do estudo; adequação da fundamentação
 teórica ao problema; encadeamento lógico entre as seções; descrição do
-método com detalhe suficiente para replicação (procedimentos, instrumentos,
-variáveis, fluxo do participante); cronograma e viabilidade de execução;
-limitações reconhecidas pelos autores; coerência entre conclusões e dados
-apresentados, sem extrapolações indevidas.""",
+método com detalhe suficiente para replicação, verificando a presença e a
+adequação dos itens: tipo de estudo; local; amostra (critérios de inclusão e
+critérios de exclusão); procedimentos (grupos estudados, randomização quando
+aplicável, mascaramento quando aplicável); variáveis (variável primária,
+variáveis secundárias e dados complementares); método estatístico (cálculo
+do tamanho da amostra, análise estatística e apresentação dos resultados);
+RESULTADOS, quando aplicável (relatórios finais e artigos): desvios da
+pesquisa, características da amostra e resultado das variáveis; DISCUSSÃO,
+quando aplicável: se a hipótese foi comprovada; discussão dos métodos
+(convergências, divergências e lacunas em relação à literatura); discussão
+dos resultados (convergências, divergências e lacunas em relação à
+literatura); implicações para a prática clínica; implicações para a
+pesquisa, com proposta de nova pesquisa; cronograma e viabilidade de
+execução; limitações reconhecidas pelos autores; coerência entre conclusões
+e dados apresentados, sem extrapolações indevidas.""",
             "Metodologia Científica",
         ),
     },

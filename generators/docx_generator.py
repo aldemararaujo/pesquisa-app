@@ -25,21 +25,29 @@ def markdown_para_docx(texto_md: str, titulo: str = "") -> bytes:
         h = doc.add_heading(titulo.replace("-", " ").title(), level=1)
         h.runs[0].font.color.rgb = RGBColor(0x1F, 0x49, 0x7D)
 
+    anterior_vazia = False
     for linha in texto_md.splitlines():
-        if linha.startswith("### "):
-            p = doc.add_heading(linha[4:], level=3)
+        if linha.strip() == "":
+            if not anterior_vazia:
+                doc.add_paragraph("")
+            anterior_vazia = True
+            continue
+        anterior_vazia = False
+
+        if linha.startswith("#### "):
+            _adicionar_heading(doc, linha[5:], level=4)
+        elif linha.startswith("### "):
+            _adicionar_heading(doc, linha[4:], level=3)
         elif linha.startswith("## "):
-            p = doc.add_heading(linha[3:], level=2)
-            p.runs[0].font.color.rgb = RGBColor(0x1F, 0x49, 0x7D)
+            _adicionar_heading(doc, linha[3:], level=2, cor=True)
         elif linha.startswith("# "):
-            p = doc.add_heading(linha[2:], level=1)
-            p.runs[0].font.color.rgb = RGBColor(0x1F, 0x49, 0x7D)
+            _adicionar_heading(doc, linha[2:], level=1, cor=True)
         elif linha.startswith("- ") or linha.startswith("* "):
-            doc.add_paragraph(linha[2:], style="List Bullet")
+            p = doc.add_paragraph(style="List Bullet")
+            _adicionar_inline(p, linha[2:])
         elif re.match(r"^\d+\. ", linha):
-            doc.add_paragraph(re.sub(r"^\d+\. ", "", linha), style="List Number")
-        elif linha.strip() == "":
-            doc.add_paragraph("")
+            p = doc.add_paragraph(style="List Number")
+            _adicionar_inline(p, re.sub(r"^\d+\. ", "", linha))
         else:
             p = doc.add_paragraph()
             _adicionar_inline(p, linha)
@@ -47,6 +55,16 @@ def markdown_para_docx(texto_md: str, titulo: str = "") -> bytes:
     buf = io.BytesIO()
     doc.save(buf)
     return buf.getvalue()
+
+
+def _adicionar_heading(doc, texto: str, level: int, cor: bool = False):
+    """Heading com marcação inline interpretada (sem asteriscos literais)."""
+    h = doc.add_heading("", level=level)
+    _adicionar_inline(h, texto)
+    if cor:
+        for run in h.runs:
+            run.font.color.rgb = RGBColor(0x1F, 0x49, 0x7D)
+    return h
 
 
 def _adicionar_inline(paragraph, texto: str):

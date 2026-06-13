@@ -20,9 +20,10 @@ FORMATO OBRIGATÓRIO DO PARECER, em markdown:
 
 ## Parecer: {area}
 
-Para cada item analisado, use exatamente esta estrutura:
+Para cada item analisado, use exatamente esta estrutura, numerando os itens
+sequencialmente a partir de 1, na ordem em que aparecem no parecer:
 
-### Item: [nome do item]
+### Item [número]: [nome do item]
 **O que aparece no documento:** transcreva ou parafraseie fielmente o trecho
 pertinente, indicando a seção onde se encontra; se o item estiver ausente,
 declare "Não consta no documento".
@@ -363,7 +364,9 @@ análise (use a data informada na mensagem).
 
 ## 2. Análise consolidada por área
 Uma subseção por área do conselho. Dentro de cada uma, mantenha a estrutura
-item a item dos pareceres: para cada item, **O que aparece no documento**,
+item a item dos pareceres, numerando os itens sequencialmente a partir de 1
+em cada área (### Item 1: ..., ### Item 2: ..., reiniciando a numeração a
+cada nova área): para cada item, **O que aparece no documento**,
 **Análise crítica** (preservando as severidades [ADEQUADO], [ATENÇÃO] e
 [CRÍTICO]) e **Sugestão de aprimoramento**. Funda itens repetidos entre
 conselheiros e incorpore as concordâncias e divergências da revisão cruzada,

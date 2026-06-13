@@ -100,6 +100,15 @@ def _render_upload(conselho: dict):
     if not selecionados:
         st.warning("Selecione ao menos um especialista para a análise.")
 
+    st.warning(
+        "Envie apenas arquivos sem dados sensíveis (sem informações pessoais "
+        "identificáveis de participantes ou pacientes) ou arquivos que você "
+        "tem autorização para submeter à avaliação por inteligência "
+        "artificial. O conteúdo do documento será processado pelo provedor "
+        "de IA configurado.",
+        icon="⚠️",
+    )
+
     uploaded_file = st.file_uploader(
         "Documento para análise (.pdf  .docx  .md  .txt)",
         type=["pdf", "docx", "md", "txt"],

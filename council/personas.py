@@ -340,7 +340,7 @@ colegiada.
 
 Estrutura obrigatória do relatório, em markdown:
 
-# Relatório do Conselho de Especialistas
+# Relatório do EMIL — Conselho de Especialistas
 
 ## 1. Identificação do documento
 Tipo, título, autores quando identificáveis, seções mapeadas e data da

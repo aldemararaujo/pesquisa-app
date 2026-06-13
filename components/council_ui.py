@@ -34,7 +34,7 @@ def _personas_selecionadas(conselho: dict) -> list[dict]:
 
 
 def render_council():
-    st.subheader("🏛️ Conselho de Especialistas")
+    st.subheader("🏛️ EMIL — Conselho de Especialistas")
     st.caption(
         "Envie um projeto de pesquisa, relatório final ou artigo científico. "
         "Oito especialistas emitem pareceres independentes, revisam os pareceres "

@@ -12,7 +12,7 @@ def render_pipeline_nav():
     st.sidebar.markdown(
         '<p style="font-weight:700;font-size:0.85rem;letter-spacing:0.05em;'
         'margin:0;padding:0.9rem 0 0.4rem;line-height:1.5">'
-        'TRILHA DO PROJETO DE PESQUISA (SAUL)</p>',
+        'SAUL — TRILHA DO PROJETO DE PESQUISA</p>',
         unsafe_allow_html=True,
     )
 

@@ -269,7 +269,7 @@ Ao final de cada etapa, exporte o resultado em Markdown, Word ou PDF.
 A barra na sidebar mostra quantos tokens foram consumidos na etapa atual.
 O total acumulado da sessão aparece ao final da barra lateral.
 
-**6. Conselho de Especialistas**
+**6. EMIL — Conselho de Especialistas**
 Fora do pipeline, o Conselho analisa um documento pronto (projeto, relatório
 final ou artigo): oito especialistas emitem pareceres, revisam uns aos outros
 de forma anônima e um relator consolida tudo em um relatório com sugestões.
@@ -302,7 +302,7 @@ with st.sidebar:
     st.markdown("---")
 
     _conselho_ativo = st.session_state.get("modo_app") == "conselho"
-    _conselho_label = "🏛️ Conselho de Especialistas (EMIL)"
+    _conselho_label = "🏛️ EMIL — Conselho de Especialistas"
     if st.button(
         _conselho_label,
         use_container_width=True,

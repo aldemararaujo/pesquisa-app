@@ -35,7 +35,7 @@ def render_footer():
     st.markdown("---")
     st.markdown("""
 <div class="app-footer">
-    <span class="af-copy">Copyright © Aldemar Araujo Castro</span><br>
+    <span class="af-copy">Copyright © 2026 Aldemar Araujo Castro</span><br>
     Disciplina de Pesquisa em Ciências da Saúde da Universidade Estadual
     de Ciências da Saúde de Alagoas (UNCISAL)<br>
     Maceió · Alagoas · Brasil

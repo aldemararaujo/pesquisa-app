@@ -289,20 +289,28 @@ def _arquivos_documento(doc_id: str, texto_md: str) -> tuple[bytes, bytes | None
     return st.session_state[cache_key]
 
 
-def _zip_completo(documentos: list[tuple[str, str, str]]) -> bytes:
-    """Monta (com cache na sessão) um zip com todos os documentos nos 3 formatos."""
-    chave = f"_dl_conselho-zip_{abs(hash(tuple(t for _, _, t in documentos))) % 10**9}"
+def _zip_selecao(arquivos: list[tuple[str, bytes]]) -> bytes:
+    """Monta (com cache na sessão) um zip com os arquivos selecionados."""
+    chave = "_dl_conselho-zipsel_" + str(
+        abs(hash(tuple((nome, len(dados)) for nome, dados in arquivos))) % 10**9
+    )
     if chave not in st.session_state:
         buf = BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-            for doc_id, _, texto in documentos:
-                docx_bytes, pdf_bytes = _arquivos_documento(doc_id, texto)
-                zf.writestr(f"{doc_id}.md", texto)
-                zf.writestr(f"{doc_id}.docx", docx_bytes)
-                if pdf_bytes:
-                    zf.writestr(f"{doc_id}.pdf", pdf_bytes)
+            for nome, dados in arquivos:
+                zf.writestr(nome, dados)
         st.session_state[chave] = buf.getvalue()
     return st.session_state[chave]
+
+
+_FORMATOS = [("md", ".md"), ("docx", ".docx"), ("pdf", ".pdf")]
+
+
+def _toggle_grupo(fmt: str, doc_ids: tuple):
+    """Marca ou desmarca a coluna inteira de um formato."""
+    valor = st.session_state[f"_dlsel_todos_{fmt}"]
+    for doc_id in doc_ids:
+        st.session_state[f"_dlsel_{doc_id}_{fmt}"] = valor
 
 
 def _render_downloads(conselho: dict):
@@ -315,6 +323,8 @@ def _render_downloads(conselho: dict):
         parecer = conselho["pareceres"].get(p["id"])
         if parecer:
             documentos.append((f"parecer-{p['id']}", f"Parecer: {p['nome_curto']}", parecer))
+
+    doc_ids = tuple(doc_id for doc_id, _, _ in documentos)
 
     with st.expander("📥 Downloads", expanded=True):
         # Primeira renderização: gera todos os arquivos com uma única barra
@@ -329,45 +339,76 @@ def _render_downloads(conselho: dict):
                 _arquivos_documento(doc_id, texto)
             barra.empty()
 
-        for doc_id, rotulo, texto in documentos:
-            docx_bytes, pdf_bytes = _arquivos_documento(doc_id, texto)
-            nome_base = f"conselho-{doc_id}_{data_hoje}"
-            col_nome, col_md, col_docx, col_pdf = st.columns([3, 1, 1, 1])
-            with col_nome:
+        st.caption(
+            "Marque os arquivos que deseja baixar. O padrão é baixar apenas os PDFs."
+        )
+
+        # Padrão: somente os PDFs marcados
+        for doc_id in doc_ids:
+            for fmt, _ in _FORMATOS:
+                st.session_state.setdefault(f"_dlsel_{doc_id}_{fmt}", fmt == "pdf")
+
+        # Atalhos de grupo, ressincronizados com o estado das colunas
+        col_rotulo, col_md, col_docx, col_pdf = st.columns([3, 1, 1, 1])
+        with col_rotulo:
+            st.markdown("**Selecionar em grupo:**")
+        for (fmt, ext), col in zip(_FORMATOS, (col_md, col_docx, col_pdf)):
+            with col:
+                st.session_state[f"_dlsel_todos_{fmt}"] = all(
+                    st.session_state[f"_dlsel_{d}_{fmt}"] for d in doc_ids
+                )
+                st.checkbox(
+                    f"Todos {ext}",
+                    key=f"_dlsel_todos_{fmt}",
+                    on_change=_toggle_grupo,
+                    args=(fmt, doc_ids),
+                )
+
+        st.markdown("---")
+
+        for doc_id, rotulo, _ in documentos:
+            c_nome, c_md, c_docx, c_pdf = st.columns([3, 1, 1, 1])
+            with c_nome:
                 st.markdown(rotulo)
-            with col_md:
-                st.download_button(
-                    ".md", data=texto.encode("utf-8"),
-                    file_name=f"{nome_base}.md", mime="text/markdown",
-                    key=f"dlbtn_{doc_id}_md", use_container_width=True,
-                )
-            with col_docx:
-                st.download_button(
-                    ".docx", data=docx_bytes,
-                    file_name=f"{nome_base}.docx", mime=_MIME_DOCX,
-                    key=f"dlbtn_{doc_id}_docx", use_container_width=True,
-                )
-            with col_pdf:
-                if pdf_bytes:
-                    st.download_button(
-                        ".pdf", data=pdf_bytes,
-                        file_name=f"{nome_base}.pdf", mime="application/pdf",
-                        key=f"dlbtn_{doc_id}_pdf", use_container_width=True,
-                    )
-                else:
-                    st.caption("PDF indisponível")
+            for (fmt, ext), col in zip(_FORMATOS, (c_md, c_docx, c_pdf)):
+                with col:
+                    st.checkbox(ext, key=f"_dlsel_{doc_id}_{fmt}")
             if doc_id == "relatorio-final":
                 st.markdown("---")
 
-        st.download_button(
-            "⬇ Baixar tudo (.zip)",
-            data=_zip_completo(documentos),
-            file_name=f"conselho-completo_{data_hoje}.zip",
-            mime="application/zip",
-            key="dlbtn_zip",
-            type="primary",
-            use_container_width=True,
-        )
+        # Monta a seleção atual
+        selecao = []
+        for doc_id, _, texto in documentos:
+            docx_bytes, pdf_bytes = _arquivos_documento(doc_id, texto)
+            nome_base = f"conselho-{doc_id}_{data_hoje}"
+            if st.session_state[f"_dlsel_{doc_id}_md"]:
+                selecao.append((f"{nome_base}.md", texto.encode("utf-8"), "text/markdown"))
+            if st.session_state[f"_dlsel_{doc_id}_docx"]:
+                selecao.append((f"{nome_base}.docx", docx_bytes, _MIME_DOCX))
+            if st.session_state[f"_dlsel_{doc_id}_pdf"] and pdf_bytes:
+                selecao.append((f"{nome_base}.pdf", pdf_bytes, "application/pdf"))
+
+        st.markdown("---")
+        if not selecao:
+            st.button("⬇ Baixar seleção", disabled=True, use_container_width=True, key="dlbtn_selecao_off")
+            st.caption("Selecione ao menos um arquivo.")
+        elif len(selecao) == 1:
+            nome, dados, mime = selecao[0]
+            st.download_button(
+                f"⬇ Baixar {nome}", data=dados, file_name=nome, mime=mime,
+                type="primary", use_container_width=True, key="dlbtn_selecao",
+            )
+            st.caption("1 arquivo selecionado.")
+        else:
+            zip_bytes = _zip_selecao([(n, d) for n, d, _ in selecao])
+            st.download_button(
+                "⬇ Baixar seleção (.zip)",
+                data=zip_bytes,
+                file_name=f"conselho-documentos_{data_hoje}.zip",
+                mime="application/zip",
+                type="primary", use_container_width=True, key="dlbtn_selecao",
+            )
+            st.caption(f"{len(selecao)} arquivos selecionados.")
 
 
 def _render_resultados(conselho: dict):
@@ -415,5 +456,5 @@ def _render_resultados_parciais(conselho: dict):
 def _limpar_conselho():
     st.session_state.conselho = {}
     for key in list(st.session_state.keys()):
-        if key.startswith("_dl_conselho-"):
+        if key.startswith("_dl_conselho-") or key.startswith("_dlsel_"):
             del st.session_state[key]
